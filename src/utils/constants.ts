@@ -75,12 +75,8 @@ export const OBSTACLE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER = 1.5; // Max inte
 export const OBSTACLE_PULSE_SPEED = 6; // How fast the emissive intensity pulses for obstacles
 export const OBSTACLE_PULSE_AMPLITUDE = 0.2; // Amplitude of the pulsation for obstacles
 
-// Score feedback constants
-export const MILESTONE_INTERVAL = 1000; // How often (in points) a milestone occurs
-export const FLOATING_TEXT_COLOR = 0x00ff00; // Green for floating text
-export const FLOATING_TEXT_SIZE = 0.5; // Size of the floating text
-export const FLOATING_TEXT_RISE_SPEED = 2; // How fast the text floats upwards
-export const FLOATING_TEXT_FADE_DURATION = 1.5; // How long the text stays visible before fading out
+// Obstacle patterns
+export const OBSTACLE_PATTERN_CHANCE_DOUBLE = 0.3; // 30% chance for a double obstacle pattern
 
 // Road emissive and pulsation constants
 export const ROAD_LINE_EMISSIVE_INTENSITY_MIN = 0.5;
@@ -102,4 +98,18 @@ export const UI_SELECTORS = {
     GAME_OVER_SCREEN: '#game-over-screen',
     GAME_OVER_FINAL_SCORE_VALUE: '#final-score-value',
     RESTART_BUTTON: '#restart-button',
+    HUD_SPEED_VALUE: '#speed-value',
+    GAME_OVER_NEW_HIGH_SCORE_MESSAGE: '#new-high-score-message', // New: Selector for new high score message
 };
+
+// UI animation constants
+export const HUD_MAX_BLUR = 5; // Max blur in pixels at max speed
+export const HUD_MAX_MOTION_OFFSET = 10; // Max Y-offset for HUD motion at max speed
+export const HUD_MOTION_SMOOTHING = 0.1; // Smoothing factor for HUD motion
+
+// Score feedback constants
+export const MILESTONE_INTERVAL = 1000; // How often (in points) a milestone occurs
+export const FLOATING_TEXT_COLOR = 0x00ff00; // Green for floating text
+export const FLOATING_TEXT_SIZE = 0.5; // Size of the floating text
+export const FLOATING_TEXT_RISE_SPEED = 2; // How fast the text floats upwards
+export const FLOATING_TEXT_FADE_DURATION = 1.5; // How long the text stays visible before fading out

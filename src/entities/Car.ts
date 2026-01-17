@@ -41,7 +41,7 @@ export class Car {
     }
 
     private createCarMesh(): THREE.Mesh {
-        // Simple box geometry for the car body
+        // Create the main car body
         const carGeometry = new THREE.BoxGeometry(CAR_WIDTH, CAR_HEIGHT, CAR_DEPTH);
         const carMaterial = new THREE.MeshStandardMaterial({
             color: CAR_COLOR,
@@ -51,13 +51,26 @@ export class Car {
 
         const car = new THREE.Mesh(carGeometry, carMaterial);
 
+        // Add rim glow effect: a slightly larger, emissive mesh as a child
+        const rimGeometry = new THREE.BoxGeometry(CAR_WIDTH * 1.05, CAR_HEIGHT * 1.05, CAR_DEPTH * 1.05); // Slightly larger
+        const rimMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0x00ffff), // Neon blue/cyan for rim, or CAR_COLOR for consistent glow
+            emissive: new THREE.Color(0x00ffff),
+            emissiveIntensity: 1.5, // Strong glow
+            transparent: true,
+            opacity: 0.3, // Subtle transparency
+            blending: THREE.AdditiveBlending // Enhance glow effect
+        });
+        const rimMesh = new THREE.Mesh(rimGeometry, rimMaterial);
+        car.add(rimMesh);
+
         // Add some basic "headlights" for aesthetic (and potentially to cast light later)
         const headlightGeometry = new THREE.BoxGeometry(CAR_WIDTH / 4, CAR_HEIGHT / 4, 0.1);
-        const headlightMaterial = new THREE.MeshBasicMaterial({
+        const headlightMaterial = new THREE.MeshStandardMaterial({ // Changed to MeshStandardMaterial
             color: 0xffff00, // Yellowish neon
             emissive: 0xffff00,
             emissiveIntensity: 1 // Strong glow for headlights
-        } as THREE.MeshBasicMaterialParameters); // Explicit cast
+        }); 
 
         const headlightLeft = new THREE.Mesh(headlightGeometry, headlightMaterial);
         headlightLeft.position.set(-CAR_WIDTH / 4, CAR_HEIGHT / 4, CAR_DEPTH / 2 + 0.05); // Position at front-left

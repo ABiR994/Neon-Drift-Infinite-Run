@@ -7,7 +7,8 @@ import {
     OBSTACLE_SPAWN_INTERVAL_INITIAL,
     OBSTACLE_SPAWN_INTERVAL_MIN,
     OBSTACLE_SPAWN_INTERVAL_DECREASE_RATE,
-    CAR_INITIAL_Z
+    CAR_INITIAL_Z,
+    OBSTACLE_PATTERN_CHANCE_DOUBLE // Import new constant
 } from '../utils/constants';
 import { getRandomInt } from '../utils/helpers'; // Removed clamp
 
@@ -63,13 +64,43 @@ export class ObstacleSpawner {
      * The Z position is calculated to be sufficiently far ahead of the camera.
      */
     private spawnObstacle(): void {
-        const randomLane = getRandomInt(0, LANE_COUNT - 1);
-        // Spawn obstacles significantly ahead of the car, relative to the road length.
-        // The spawning range is between ROAD_LENGTH and ROAD_LENGTH + a random offset.
-        // Obstacles must spawn far enough away to give the player time to react.
         const spawnZ = CAR_INITIAL_Z - ROAD_LENGTH - getRandomInt(ROAD_LENGTH / 4, ROAD_LENGTH / 2);
-        const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
-        this.obstacles.push(newObstacle);
+
+        // Determine obstacle pattern
+        const patternType = Math.random() < OBSTACLE_PATTERN_CHANCE_DOUBLE ? 'DOUBLE' : 'SINGLE';
+
+        if (patternType === 'SINGLE') {
+            const randomLane = getRandomInt(0, LANE_COUNT - 1);
+            const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
+            this.obstacles.push(newObstacle);
+        } else if (patternType === 'DOUBLE') {
+            // Ensure there are at least 2 lanes for a double obstacle
+            if (LANE_COUNT >= 2) {
+                let lane1 = getRandomInt(0, LANE_COUNT - 1);
+                let lane2 = getRandomInt(0, LANE_COUNT - 1);
+
+                // Ensure two different lanes are selected
+                while (lane2 === lane1) {
+                    lane2 = getRandomInt(0, LANE_COUNT - 1);
+                }
+
+                // Ensure there's at least one empty lane if LANE_COUNT > 2
+                // Or simply spawn in two different lanes if LANE_COUNT is 2
+                if (LANE_COUNT > 2) {
+                    // To ensure at least one open lane, we select two lanes out of N
+                    // The above random selection already ensures two distinct lanes.
+                    // No further logic needed here as we only care that they are distinct.
+                }
+
+                this.obstacles.push(new Obstacle(this.scene, lane1, spawnZ));
+                this.obstacles.push(new Obstacle(this.scene, lane2, spawnZ));
+            } else {
+                // Fallback to single if not enough lanes for double
+                const randomLane = getRandomInt(0, LANE_COUNT - 1);
+                const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
+                this.obstacles.push(newObstacle);
+            }
+        }
     }
 
     /**

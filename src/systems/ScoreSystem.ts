@@ -1,39 +1,46 @@
 // src/systems/ScoreSystem.ts
-// Removed GAME_SPEED_INITIAL import as gameSpeed property is removed
-// import { GAME_SPEED_INITIAL } from '../utils/constants';
+import { MILESTONE_INTERVAL } from '../utils/constants';
 
 export class ScoreSystem {
     private score: number = 0;
     private distanceTraveled: number = 0;
     private timeSurvived: number = 0;
-    // private gameSpeed: number = GAME_SPEED_INITIAL; // Removed as its value was never read
-    private scoreMultiplier: number = 1; // Future expansion for power-ups etc.
+    private scoreMultiplier: number = 1;
+    private onMilestoneReachedCallback?: (milestoneScore: number) => void;
 
     constructor() {
         this.reset();
     }
 
-    /**
-     * Updates the score, distance traveled, and time survived.
-     * @param deltaTime The time elapsed since the last frame.
-     * @param currentSpeed The current game speed, which affects distance calculation.
-     */
-    public update(deltaTime: number, currentSpeed: number): void {
-        this.timeSurvived += deltaTime;
-        // this.gameSpeed = currentSpeed; // Removed
-        this.distanceTraveled += currentSpeed * deltaTime; // Distance is proportional to speed and time
+    public setOnMilestoneReachedCallback(callback: (milestoneScore: number) => void): void {
+        this.onMilestoneReachedCallback = callback;
+    }
 
-        // Score increases based on a combination of time survived and distance.
-        // A simple formula: score = (time_survived * X) + (distance_traveled * Y)
-        // Adjust multipliers X and Y for desired score progression.
-        // For now, let's keep it simple: mainly distance driven, with a time bonus.
-        this.score = Math.floor((this.distanceTraveled * 0.1) + (this.timeSurvived * 0.5)) * this.scoreMultiplier;
+    public update(deltaTime: number, currentSpeed: number): void {
+        const oldScore = this.score; // Store old score before updating
+
+        this.timeSurvived += deltaTime;
+        this.distanceTraveled += currentSpeed * deltaTime;
+        this.score = Math.max(0, Math.floor((this.distanceTraveled * 0.1) + (this.timeSurvived * 0.5)) * this.scoreMultiplier);
+
+        // Check for milestones
+        const currentMilestone = Math.floor(this.score / MILESTONE_INTERVAL);
+        const lastMilestone = Math.floor(oldScore / MILESTONE_INTERVAL);
+
+        if (currentMilestone > lastMilestone && currentMilestone > 0) {
+            // A new milestone has been reached
+            const milestoneScore = currentMilestone * MILESTONE_INTERVAL;
+            if (this.onMilestoneReachedCallback) {
+                this.onMilestoneReachedCallback(milestoneScore);
+            }
+        }
     }
 
     /**
      * Returns the current score.
      */
     public getScore(): number {
+        console.log('ScoreSystem.getScore() returning:', this.score); // DEBUG
         return this.score;
     }
 

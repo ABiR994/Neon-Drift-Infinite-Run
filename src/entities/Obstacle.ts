@@ -72,7 +72,7 @@ export class Obstacle {
 
         const baseEmissiveIntensity = OBSTACLE_EMISSIVE_INTENSITY_MIN * (1 + t * (OBSTACLE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
         const pulse = Math.sin(time * OBSTACLE_PULSE_SPEED) * OBSTACLE_PULSE_AMPLITUDE + 1; // 1 to 1+AMPLITUDE
-        (this.mesh.material as any).emissiveIntensity = baseEmissiveIntensity * pulse;
+        (this.mesh.material as THREE.MeshStandardMaterial).emissiveIntensity = baseEmissiveIntensity * pulse;
     }
 
     /**

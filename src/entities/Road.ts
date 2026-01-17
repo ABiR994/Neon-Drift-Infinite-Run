@@ -26,8 +26,8 @@ export class Road {
     private laneLines: THREE.Mesh[] = [];
     private edgeLines: THREE.Mesh[] = [];
     private roadMaterial: THREE.MeshStandardMaterial;
-    private laneLineMaterial: THREE.MeshBasicMaterial;
-    private edgeLineMaterial: THREE.MeshBasicMaterial;
+    private laneLineMaterial: THREE.MeshStandardMaterial;
+    private edgeLineMaterial: THREE.MeshStandardMaterial;
 
     constructor(scene: THREE.Scene) {
         this.scene = scene;
@@ -39,16 +39,20 @@ export class Road {
             metalness: 0.8, // Make it reflective
             roughness: 0.5 // Adjust for desired shininess
         });
-        this.laneLineMaterial = new THREE.MeshBasicMaterial({
+        this.laneLineMaterial = new THREE.MeshStandardMaterial({
             color: ROAD_LINE_COLOR,
             emissive: new THREE.Color(ROAD_LINE_COLOR), // Ensure emissive is a Color object
-            emissiveIntensity: ROAD_LINE_EMISSIVE_INTENSITY_MIN
-        } as any); // Cast to any to bypass strict type checking for emissive
-        this.edgeLineMaterial = new THREE.MeshBasicMaterial({
+            emissiveIntensity: ROAD_LINE_EMISSIVE_INTENSITY_MIN,
+            metalness: 0.2, // Some metallic reflection
+            roughness: 0.3 // A bit shiny
+        });
+        this.edgeLineMaterial = new THREE.MeshStandardMaterial({
             color: ROAD_LINE_COLOR,
             emissive: new THREE.Color(ROAD_LINE_COLOR), // Ensure emissive is a Color object
-            emissiveIntensity: ROAD_EDGE_EMISSIVE_INTENSITY_MIN
-        } as any); // Cast to any to bypass strict type checking for emissive
+            emissiveIntensity: ROAD_EDGE_EMISSIVE_INTENSITY_MIN,
+            metalness: 0.2,
+            roughness: 0.3
+        });
 
         this.init();
     }
@@ -189,12 +193,12 @@ export class Road {
         // Lane lines pulsation
         const baseLaneIntensity = ROAD_LINE_EMISSIVE_INTENSITY_MIN * (1 + t * (ROAD_LINE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
         const pulseLane = Math.sin(time * ROAD_PULSE_SPEED) * ROAD_PULSE_AMPLITUDE + 1; // 1 to 1+AMPLITUDE
-        (this.laneLineMaterial as any).emissiveIntensity = baseLaneIntensity * pulseLane;
+        this.laneLineMaterial.emissiveIntensity = baseLaneIntensity * pulseLane;
 
         // Edge lines pulsation
         const baseEdgeIntensity = ROAD_EDGE_EMISSIVE_INTENSITY_MIN * (1 + t * (ROAD_EDGE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
         const pulseEdge = Math.sin(time * ROAD_PULSE_SPEED + Math.PI / 2) * ROAD_PULSE_AMPLITUDE + 1; // Offset phase for a more dynamic look
-        (this.edgeLineMaterial as any).emissiveIntensity = baseEdgeIntensity * pulseEdge;
+        this.edgeLineMaterial.emissiveIntensity = baseEdgeIntensity * pulseEdge;
     }
 
     /**
@@ -234,8 +238,8 @@ export class Road {
             }
         }
         // Also reset emissive intensity
-        (this.laneLineMaterial as any).emissiveIntensity = ROAD_LINE_EMISSIVE_INTENSITY_MIN;
-        (this.edgeLineMaterial as any).emissiveIntensity = ROAD_EDGE_EMISSIVE_INTENSITY_MIN;
+        this.laneLineMaterial.emissiveIntensity = ROAD_LINE_EMISSIVE_INTENSITY_MIN;
+        this.edgeLineMaterial.emissiveIntensity = ROAD_EDGE_EMISSIVE_INTENSITY_MIN;
     }
 
 

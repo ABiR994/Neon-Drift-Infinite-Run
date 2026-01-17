@@ -21,9 +21,7 @@ import {
     CAMERA_TILT_MAX_ANGLE,
     CAMERA_SHAKE_MAX_INTENSITY,
     CAMERA_SHAKE_SPEED_THRESHOLD,
-    CAMERA_SHAKE_FREQUENCY,
-    NEAR_MISS_SHAKE_INTENSITY,
-    NEAR_MISS_FLASH_DURATION // Also need this for potential full screen flash
+    CAMERA_SHAKE_FREQUENCY
 } from '../utils/constants';
 
 import * as TWEEN from '@tweenjs/tween.js'; // Import TWEEN.js
@@ -245,8 +243,8 @@ export class SceneManager {
      * @param time The total elapsed time, for pulsation and shake effects.
      * @param deltaTime The time elapsed since the last frame.
      */
-    public updateEnvironment(speed: number, time: number, deltaTime: number): void {
-        TWEEN.update(time * 1000); // Update Tweens
+     public updateEnvironment(speed: number, time: number, deltaTime: number): void {
+        // TWEEN.update(time * 1000); // Removed: Now handled in Game.ts
 
         // Normalize speed to a 0-1 range based on initial and max speed
         const normalizedSpeed = (speed - GAME_SPEED_INITIAL) / (GAME_SPEED_MAX - GAME_SPEED_INITIAL);
