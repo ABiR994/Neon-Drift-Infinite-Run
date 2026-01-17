@@ -1,7 +1,9 @@
 # Neon Drift - Infinite Run
 
+A captivating infinite runner set in a vibrant cyberpunk world.
+
 ## 🚀 Overview
-Neon Drift - Infinite Run is a thrilling, futuristic endless runner game crafted with Three.js and TypeScript. Immerse yourself in a vibrant, cyberpunk-inspired cityscape where quick reflexes are key. Dodge dynamically generated obstacles, master lane changes, and push your limits to achieve the highest score in this fast-paced, visually stunning adventure.
+**Neon Drift - Infinite Run** is a thrilling, futuristic endless runner game crafted with Three.js and TypeScript. Immerse yourself in a vibrant, cyberpunk-inspired cityscape where quick reflexes are key. Dodge dynamically generated obstacles, master lane changes, and push your limits to achieve the highest score in this fast-paced, visually stunning adventure.
 
 ## ✨ Core Features
 -   **Dynamic Lane Shifting:** Seamlessly drift between three distinct lanes, relying on precision and timing.
@@ -78,4 +80,7 @@ Execute this to bundle the application into highly optimized static files, ready
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-Developed by ABiR994
+## 🧑‍💻 Developed By
+
+- [ABiR994](https://github.com/ABiR994) - Creator and Lead Developer
+
