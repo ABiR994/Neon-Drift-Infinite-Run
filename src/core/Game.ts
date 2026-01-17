@@ -115,14 +115,14 @@ export class Game {
             this.car.moveRight();
         }
 
-        this.car.update(deltaTime, currentTime / 1000, this.currentSpeed);
+        this.car.update(deltaTime, currentTime / 1000);
         this.road.update(deltaTime, this.currentSpeed, currentTime / 1000);
         this.obstacleSpawner.update(deltaTime, this.currentSpeed, currentTime);
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.collisionSystem.update();
         this.scoreSystem.update(deltaTime, this.currentSpeed);
 
-        this.sceneManager.updateEnvironment(this.currentSpeed, deltaTime);
+        this.sceneManager.updateEnvironment(this.currentSpeed, currentTime / 1000, deltaTime);
 
         this.hud.updateScore(this.scoreSystem.getScore());
         this.hud.update(this.currentSpeed);

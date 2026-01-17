@@ -8,10 +8,9 @@ import {
     OBSTACLE_SPAWN_INTERVAL_MIN,
     OBSTACLE_SPAWN_INTERVAL_DECREASE_RATE,
     CAR_INITIAL_Z,
-    OBSTACLE_PATTERN_CHANCE_DOUBLE, // Import new constant
-    OBSTACLE_TYPE_BARRIER, OBSTACLE_TYPE_ENERGY_WALL, OBSTACLE_TYPE_HOLO_BLOCK // Import new obstacle types
+    OBSTACLE_PATTERN_CHANCE_DOUBLE // Import new constant
 } from '../utils/constants';
-import { getRandomInt } from '../utils/helpers'; // Only getRandomInt is used from helpers
+import { getRandomInt } from '../utils/helpers'; // Removed clamp
 
 export class ObstacleSpawner {
     private scene: THREE.Scene;
@@ -43,14 +42,15 @@ export class ObstacleSpawner {
 
         // Spawn a new obstacle if enough time has passed
         if (this.timeSinceLastSpawn >= this.currentSpawnInterval) {
-            this.spawnObstacle(currentTime / 1000); // Pass current time in seconds
+            this.spawnObstacle();
             this.timeSinceLastSpawn = 0;
         }
 
         // Update existing obstacles and remove those out of view
         for (let i = this.obstacles.length - 1; i >= 0; i--) {
             const obstacle = this.obstacles[i];
-            obstacle.update(deltaTime, gameSpeed, currentTime / 1000); // Pass current time for obstacle visuals
+            obstacle.update(deltaTime, gameSpeed);
+            obstacle.updateVisuals(gameSpeed, currentTime / 1000); // Update obstacle visuals
 
             if (obstacle.isOutOfView()) {
                 obstacle.dispose(this.scene);
@@ -62,21 +62,16 @@ export class ObstacleSpawner {
     /**
      * Spawns a new obstacle in a random lane ahead of the player.
      * The Z position is calculated to be sufficiently far ahead of the camera.
-     * @param time The current game time for obstacle spawn effects.
      */
-    private spawnObstacle(time: number): void {
+    private spawnObstacle(): void {
         const spawnZ = CAR_INITIAL_Z - ROAD_LENGTH - getRandomInt(ROAD_LENGTH / 4, ROAD_LENGTH / 2);
 
         // Determine obstacle pattern
         const patternType = Math.random() < OBSTACLE_PATTERN_CHANCE_DOUBLE ? 'DOUBLE' : 'SINGLE';
 
-        // Randomly select an obstacle type for the new obstacle(s)
-        const obstacleTypes = [OBSTACLE_TYPE_BARRIER, OBSTACLE_TYPE_ENERGY_WALL, OBSTACLE_TYPE_HOLO_BLOCK];
-        const randomObstacleType = obstacleTypes[getRandomInt(0, obstacleTypes.length - 1)];
-
         if (patternType === 'SINGLE') {
             const randomLane = getRandomInt(0, LANE_COUNT - 1);
-            const newObstacle = new Obstacle(this.scene, randomLane, spawnZ, randomObstacleType, time);
+            const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
             this.obstacles.push(newObstacle);
         } else if (patternType === 'DOUBLE') {
             // Ensure there are at least 2 lanes for a double obstacle
@@ -89,12 +84,20 @@ export class ObstacleSpawner {
                     lane2 = getRandomInt(0, LANE_COUNT - 1);
                 }
 
-                this.obstacles.push(new Obstacle(this.scene, lane1, spawnZ, randomObstacleType, time));
-                this.obstacles.push(new Obstacle(this.scene, lane2, spawnZ, randomObstacleType, time));
+                // Ensure there's at least one empty lane if LANE_COUNT > 2
+                // Or simply spawn in two different lanes if LANE_COUNT is 2
+                if (LANE_COUNT > 2) {
+                    // To ensure at least one open lane, we select two lanes out of N
+                    // The above random selection already ensures two distinct lanes.
+                    // No further logic needed here as we only care that they are distinct.
+                }
+
+                this.obstacles.push(new Obstacle(this.scene, lane1, spawnZ));
+                this.obstacles.push(new Obstacle(this.scene, lane2, spawnZ));
             } else {
                 // Fallback to single if not enough lanes for double
                 const randomLane = getRandomInt(0, LANE_COUNT - 1);
-                const newObstacle = new Obstacle(this.scene, randomLane, spawnZ, randomObstacleType, time);
+                const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
                 this.obstacles.push(newObstacle);
             }
         }
