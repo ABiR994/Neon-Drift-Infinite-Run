@@ -1,25 +1,32 @@
 // src/systems/CollisionSystem.ts
+import * as THREE from 'three';
 import { Car } from '../entities/Car';
 import { Obstacle } from '../entities/Obstacle';
+import { NEAR_MISS_DISTANCE, CAR_WIDTH } from '../utils/constants';
 
 export class CollisionSystem {
     private car: Car;
     private obstacles: Obstacle[];
     private onCollisionCallback: () => void; // Callback to notify when a collision occurs
+    private onNearMissCallback: () => void; // Callback to notify when a near miss occurs
 
-    constructor(car: Car, obstacles: Obstacle[], onCollision: () => void) {
+    constructor(car: Car, obstacles: Obstacle[], onCollision: () => void, onNearMiss: () => void) {
         this.car = car;
         this.obstacles = obstacles;
         this.onCollisionCallback = onCollision;
+        this.onNearMissCallback = onNearMiss;
     }
 
     /**
      * Checks for collisions between the player's car and all active obstacles.
+     * Also checks for near-misses to provide additional player feedback.
      * If a collision is detected, the registered `onCollisionCallback` is invoked,
      * signaling the game to enter a 'game over' state.
      */
     public update(): void {
-        // Iterate through each obstacle to check for potential collisions with the car
+        let nearMissDetectedThisFrame = false;
+
+        // Iterate through each obstacle to check for potential collisions and near misses with the car
         for (const obstacle of this.obstacles) {
             // THREE.Box3.intersectsBox performs an AABB (Axis-Aligned Bounding Box) intersection test
             if (this.car.collider.intersectsBox(obstacle.collider)) {
@@ -28,6 +35,28 @@ export class CollisionSystem {
                 this.onCollisionCallback();
                 return;
             }
+
+            // Check for near miss: If the car and obstacle are close but not colliding
+            // Only check if not already colliding
+            if (!nearMissDetectedThisFrame) { // Check only once per frame
+                // Simplified near-miss check:
+                // Check distance in Z-axis (forward/backward)
+                const obstacleDepth = (obstacle.mesh.geometry as THREE.BoxGeometry).parameters.depth;
+                const carDepth = (this.car.mesh.geometry as THREE.BoxGeometry).parameters.depth;
+                const zDistance = Math.abs(this.car.mesh.position.z - obstacle.mesh.position.z) - (carDepth / 2) - (obstacleDepth / 2);
+                // Check distance in X-axis (sideways)
+                const obstacleWidth = (obstacle.mesh.geometry as THREE.BoxGeometry).parameters.width;
+                const xDistance = Math.abs(this.car.mesh.position.x - obstacle.mesh.position.x) - (CAR_WIDTH / 2) - (obstacleWidth / 2);
+
+                if (zDistance < NEAR_MISS_DISTANCE && zDistance > -NEAR_MISS_DISTANCE / 2 && // Close in Z, but car hasn't fully passed yet
+                    xDistance < NEAR_MISS_DISTANCE && xDistance > -CAR_WIDTH) { // Close in X
+                    nearMissDetectedThisFrame = true;
+                }
+            }
+        }
+
+        if (nearMissDetectedThisFrame) {
+            this.onNearMissCallback();
         }
     }
 

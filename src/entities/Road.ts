@@ -8,7 +8,16 @@ import {
     ROAD_SEGMENT_LENGTH,
     LANE_COUNT,
     LANE_WIDTH,
-    CAR_INITIAL_Z // Needed for road segments positioning relative to camera
+    CAR_INITIAL_Z,
+    GAME_SPEED_INITIAL, // For speed normalization
+    GAME_SPEED_MAX,     // For speed normalization
+    ROAD_LINE_EMISSIVE_INTENSITY_MIN,
+    ROAD_LINE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER,
+    ROAD_EDGE_EMISSIVE_INTENSITY_MIN,
+    ROAD_EDGE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER,
+    ROAD_SEGMENT_EMISSIVE_INTENSITY,
+    ROAD_PULSE_SPEED,
+    ROAD_PULSE_AMPLITUDE
 } from '../utils/constants';
 
 export class Road {
@@ -16,9 +25,31 @@ export class Road {
     private segments: THREE.Mesh[] = [];
     private laneLines: THREE.Mesh[] = [];
     private edgeLines: THREE.Mesh[] = [];
+    private roadMaterial: THREE.MeshStandardMaterial;
+    private laneLineMaterial: THREE.MeshBasicMaterial;
+    private edgeLineMaterial: THREE.MeshBasicMaterial;
 
     constructor(scene: THREE.Scene) {
         this.scene = scene;
+        // Initialize materials here
+        this.roadMaterial = new THREE.MeshStandardMaterial({
+            color: ROAD_COLOR,
+            emissive: ROAD_COLOR,
+            emissiveIntensity: ROAD_SEGMENT_EMISSIVE_INTENSITY,
+            metalness: 0.8, // Make it reflective
+            roughness: 0.5 // Adjust for desired shininess
+        });
+        this.laneLineMaterial = new THREE.MeshBasicMaterial({
+            color: ROAD_LINE_COLOR,
+            emissive: new THREE.Color(ROAD_LINE_COLOR), // Ensure emissive is a Color object
+            emissiveIntensity: ROAD_LINE_EMISSIVE_INTENSITY_MIN
+        } as any); // Cast to any to bypass strict type checking for emissive
+        this.edgeLineMaterial = new THREE.MeshBasicMaterial({
+            color: ROAD_LINE_COLOR,
+            emissive: new THREE.Color(ROAD_LINE_COLOR), // Ensure emissive is a Color object
+            emissiveIntensity: ROAD_EDGE_EMISSIVE_INTENSITY_MIN
+        } as any); // Cast to any to bypass strict type checking for emissive
+
         this.init();
     }
 
@@ -34,7 +65,7 @@ export class Road {
      */
     private createRoadSegments(): void {
         // Use a standard material for the main road surface
-        const segmentMaterial = new THREE.MeshStandardMaterial({ color: ROAD_COLOR });
+        const segmentMaterial = this.roadMaterial;
 
         // Determine the number of segments needed to cover the viewable road length, plus some for seamless looping
         const numSegments = Math.ceil(ROAD_LENGTH / ROAD_SEGMENT_LENGTH);
@@ -58,13 +89,8 @@ export class Road {
      * These lines are dashed and glow slightly for the neon aesthetic.
      */
     private createLaneLines(): void {
-        // Use a basic material with emissive property for a glowing effect
-        // Explicitly cast to THREE.MeshBasicMaterialParameters to resolve LSP error
-        const lineMaterial = new THREE.MeshBasicMaterial({
-            color: ROAD_LINE_COLOR,
-            emissive: ROAD_LINE_COLOR,
-            emissiveIntensity: 0.5
-        } as THREE.MeshBasicMaterialParameters);
+        // Use the pre-defined material with emissive property for a glowing effect
+        const lineMaterial = this.laneLineMaterial;
         const lineGeometry = new THREE.PlaneGeometry(0.1, ROAD_SEGMENT_LENGTH / 3); // Shorter, dashed lines
 
         // Calculate x positions for lane lines based on LANE_WIDTH
@@ -89,13 +115,8 @@ export class Road {
      * Creates and adds glowing edge lines for the road boundaries.
      */
     private createEdgeLines(): void {
-        // Thicker, continuous lines for road edges, with higher emissive intensity
-        // Explicitly cast to THREE.MeshBasicMaterialParameters to resolve LSP error
-        const edgeMaterial = new THREE.MeshBasicMaterial({
-            color: ROAD_LINE_COLOR,
-            emissive: ROAD_LINE_COLOR,
-            emissiveIntensity: 0.8
-        } as THREE.MeshBasicMaterialParameters);
+        // Use the pre-defined material with higher emissive intensity
+        const edgeMaterial = this.edgeLineMaterial;
         const edgeGeometry = new THREE.PlaneGeometry(0.2, ROAD_SEGMENT_LENGTH); // Thicker, continuous lines
 
         const leftEdgeX = -ROAD_WIDTH / 2; // X-coordinate for the left edge
@@ -125,10 +146,12 @@ export class Road {
 
     /**
      * Updates the position of road segments and lines to simulate continuous scrolling.
+     * Also updates the emissive intensity of lane and edge lines based on speed and a pulsing effect.
      * @param deltaTime The time elapsed since the last frame.
      * @param speed The current game speed, affecting scroll rate.
+     * @param time The total elapsed time, for pulsation effects.
      */
-    public update(deltaTime: number, speed: number): void {
+    public update(deltaTime: number, speed: number, time: number): void {
         // Calculate how much the road should scroll based on speed and delta time
         const scrollAmount = speed * deltaTime;
 
@@ -158,6 +181,20 @@ export class Road {
                 edge.position.z -= (this.edgeLines.length / 2) * ROAD_SEGMENT_LENGTH; // Divide by 2 because there are two edge lines per logical segment
             }
         }
+
+        // Update emissive intensity of lane and edge lines
+        const normalizedSpeed = (speed - GAME_SPEED_INITIAL) / (GAME_SPEED_MAX - GAME_SPEED_INITIAL);
+        const t = Math.max(0, Math.min(1, normalizedSpeed)); // Clamp t between 0 and 1
+
+        // Lane lines pulsation
+        const baseLaneIntensity = ROAD_LINE_EMISSIVE_INTENSITY_MIN * (1 + t * (ROAD_LINE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
+        const pulseLane = Math.sin(time * ROAD_PULSE_SPEED) * ROAD_PULSE_AMPLITUDE + 1; // 1 to 1+AMPLITUDE
+        (this.laneLineMaterial as any).emissiveIntensity = baseLaneIntensity * pulseLane;
+
+        // Edge lines pulsation
+        const baseEdgeIntensity = ROAD_EDGE_EMISSIVE_INTENSITY_MIN * (1 + t * (ROAD_EDGE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
+        const pulseEdge = Math.sin(time * ROAD_PULSE_SPEED + Math.PI / 2) * ROAD_PULSE_AMPLITUDE + 1; // Offset phase for a more dynamic look
+        (this.edgeLineMaterial as any).emissiveIntensity = baseEdgeIntensity * pulseEdge;
     }
 
     /**
@@ -196,6 +233,9 @@ export class Road {
                 edgeIndex++;
             }
         }
+        // Also reset emissive intensity
+        (this.laneLineMaterial as any).emissiveIntensity = ROAD_LINE_EMISSIVE_INTENSITY_MIN;
+        (this.edgeLineMaterial as any).emissiveIntensity = ROAD_EDGE_EMISSIVE_INTENSITY_MIN;
     }
 
 
@@ -221,5 +261,9 @@ export class Road {
         this.segments = [];
         this.laneLines = [];
         this.edgeLines = [];
+
+        this.roadMaterial.dispose();
+        this.laneLineMaterial.dispose();
+        this.edgeLineMaterial.dispose();
     }
 }

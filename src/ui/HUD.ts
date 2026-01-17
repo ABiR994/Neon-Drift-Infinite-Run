@@ -1,8 +1,11 @@
 // src/ui/HUD.ts
 import { UI_SELECTORS } from '../utils/constants';
+import * as TWEEN from '@tweenjs/tween.js'; // Import TWEEN.js
 
 export class HUD {
     private scoreElement: HTMLElement | null;
+    private displayedScore: { value: number } = { value: 0 }; // Property to animate for count-up effect
+    private scoreTween: TWEEN.Tween<typeof this.displayedScore> | null = null; // Store the tween instance
 
     constructor() {
         this.scoreElement = document.querySelector(UI_SELECTORS.HUD_SCORE_VALUE);
@@ -18,7 +21,21 @@ export class HUD {
      */
     public updateScore(score: number): void {
         if (this.scoreElement) {
-            this.scoreElement.textContent = Math.floor(score).toString();
+            // Stop any ongoing tween to prevent conflicts
+            if (this.scoreTween) {
+                this.scoreTween.stop();
+            }
+
+            // Create a new tween to animate the displayed score
+            this.scoreTween = new TWEEN.Tween(this.displayedScore)
+                .to({ value: score }, 500) // Animate over 500ms
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .onUpdate(() => {
+                    if (this.scoreElement) {
+                        this.scoreElement.textContent = Math.floor(this.displayedScore.value).toString();
+                    }
+                })
+                .start();
         }
     }
 
@@ -27,7 +44,11 @@ export class HUD {
      * This also ensures the HUD is visible if it were hidden by a game over screen.
      */
     public reset(): void {
-        this.updateScore(0);
+        if (this.scoreTween) {
+            this.scoreTween.stop(); // Stop any ongoing score animation
+        }
+        this.displayedScore.value = 0; // Reset internal animated value
+        this.updateScore(0); // Update the display to 0
         // Ensure HUD is visible, though its visibility is primarily managed by the Game class or main.ts
     }
 

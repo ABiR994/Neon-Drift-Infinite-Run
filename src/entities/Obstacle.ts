@@ -1,6 +1,10 @@
 // src/entities/Obstacle.ts
 import * as THREE from 'three';
-import { OBSTACLE_WIDTH, OBSTACLE_HEIGHT, OBSTACLE_DEPTH, OBSTACLE_COLOR, LANE_WIDTH, ROAD_WIDTH, CAR_INITIAL_Z } from '../utils/constants';
+import { OBSTACLE_WIDTH, OBSTACLE_HEIGHT, OBSTACLE_DEPTH, OBSTACLE_COLOR, LANE_WIDTH, ROAD_WIDTH, CAR_INITIAL_Z,
+    GAME_SPEED_INITIAL, GAME_SPEED_MAX,
+    OBSTACLE_EMISSIVE_INTENSITY_MIN, OBSTACLE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER,
+    OBSTACLE_PULSE_SPEED, OBSTACLE_PULSE_AMPLITUDE
+} from '../utils/constants';
 
 export class Obstacle {
     public mesh: THREE.Mesh;
@@ -29,7 +33,7 @@ export class Obstacle {
         const obstacleMaterial = new THREE.MeshStandardMaterial({
             color: OBSTACLE_COLOR,
             emissive: OBSTACLE_COLOR,
-            emissiveIntensity: 0.5 // Glowing effect for obstacles
+            emissiveIntensity: OBSTACLE_EMISSIVE_INTENSITY_MIN // Initial glowing effect for obstacles
         } as THREE.MeshStandardMaterialParameters); // Explicit cast to resolve LSP error
 
         return new THREE.Mesh(obstacleGeometry, obstacleMaterial);
@@ -55,6 +59,20 @@ export class Obstacle {
         // Update the bounding box collider
         this.mesh.updateMatrixWorld(true);
         this.collider.setFromObject(this.mesh);
+    }
+
+    /**
+     * Updates the visual properties of the obstacle, such as emissive intensity based on speed and pulsation.
+     * @param speed The current game speed.
+     * @param time The total elapsed time, for pulsation effects.
+     */
+    public updateVisuals(speed: number, time: number): void {
+        const normalizedSpeed = (speed - GAME_SPEED_INITIAL) / (GAME_SPEED_MAX - GAME_SPEED_INITIAL);
+        const t = Math.max(0, Math.min(1, normalizedSpeed));
+
+        const baseEmissiveIntensity = OBSTACLE_EMISSIVE_INTENSITY_MIN * (1 + t * (OBSTACLE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
+        const pulse = Math.sin(time * OBSTACLE_PULSE_SPEED) * OBSTACLE_PULSE_AMPLITUDE + 1; // 1 to 1+AMPLITUDE
+        (this.mesh.material as any).emissiveIntensity = baseEmissiveIntensity * pulse;
     }
 
     /**

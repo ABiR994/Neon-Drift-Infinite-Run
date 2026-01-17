@@ -27,8 +27,9 @@ export class ObstacleSpawner {
      * Updates the spawner, checking for new spawns and managing existing obstacles.
      * @param deltaTime The time elapsed since the last frame.
      * @param gameSpeed The current speed of the game, influencing obstacle movement.
+     * @param currentTime The total elapsed time, for pulsation effects.
      */
-    public update(deltaTime: number, gameSpeed: number): void {
+    public update(deltaTime: number, gameSpeed: number, currentTime: DOMHighResTimeStamp): void {
         this.timeSinceLastSpawn += deltaTime;
         this.totalGameTime += deltaTime;
 
@@ -48,6 +49,7 @@ export class ObstacleSpawner {
         for (let i = this.obstacles.length - 1; i >= 0; i--) {
             const obstacle = this.obstacles[i];
             obstacle.update(deltaTime, gameSpeed);
+            obstacle.updateVisuals(gameSpeed, currentTime / 1000); // Update obstacle visuals
 
             if (obstacle.isOutOfView()) {
                 obstacle.dispose(this.scene);

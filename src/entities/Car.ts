@@ -9,7 +9,11 @@ import {
     LANE_WIDTH,
     ROAD_WIDTH,
     LANE_COUNT,
-    CAR_MOVE_SPEED
+    CAR_MOVE_SPEED,
+    CAR_MAX_TILT_ANGLE,    // New constant
+    CAR_TILT_SPEED,        // New constant
+    CAR_BOUNCE_AMPLITUDE,  // New constant
+    CAR_BOUNCE_FREQUENCY   // New constant
 } from '../utils/constants';
 import { clamp, lerp } from '../utils/helpers';
 
@@ -18,6 +22,7 @@ export class Car {
     public collider: THREE.Box3;
     private targetLane: number; // 0-indexed, from left to right
     private currentLaneX: number; // Current X position for the center of the car
+    private currentTiltAngle: number = 0; // Current tilt angle for the car
 
     constructor(scene: THREE.Scene) {
         this.mesh = this.createCarMesh();
@@ -108,15 +113,27 @@ export class Car {
 
     /**
      * Updates the car's position, smoothly interpolating towards the target lane.
+     * Also applies car tilt and bounce effects.
      * @param deltaTime The time elapsed since the last frame.
+     * @param time The total elapsed time, for animation effects like bounce.
      */
-    public update(deltaTime: number): void {
+    public update(deltaTime: number, time: number): void {
         const targetX = this.getLanePositionX(this.targetLane);
 
         // Smoothly interpolate the car's X position towards the target lane's X position
         // The interpolation factor ensures consistent movement speed regardless of FPS.
         this.currentLaneX = lerp(this.currentLaneX, targetX, clamp(CAR_MOVE_SPEED * deltaTime, 0, 1));
         this.mesh.position.x = this.currentLaneX;
+
+        // Car Tilt: Tilt the car based on the difference between current X and target X
+        const tiltFactor = (targetX - this.mesh.position.x) / (LANE_WIDTH / 2); // Normalize difference to -1 to 1
+        const targetTilt = tiltFactor * CAR_MAX_TILT_ANGLE;
+        this.currentTiltAngle = lerp(this.currentTiltAngle, targetTilt, clamp(CAR_TILT_SPEED * deltaTime, 0, 1));
+        this.mesh.rotation.z = this.currentTiltAngle;
+
+        // Car Bounce: Apply a subtle vertical bounce
+        const bounceOffset = Math.sin(time * CAR_BOUNCE_FREQUENCY) * CAR_BOUNCE_AMPLITUDE;
+        this.mesh.position.y = CAR_HEIGHT / 2 + bounceOffset;
 
         // Update the bounding box collider to match the car's new position
         this.mesh.updateMatrixWorld(true); // Ensure world matrix is up-to-date
@@ -131,7 +148,9 @@ export class Car {
         this.currentLaneX = this.getLanePositionX(this.targetLane);
         this.mesh.position.x = this.currentLaneX;
         this.mesh.position.z = CAR_INITIAL_Z;
-        this.mesh.position.y = CAR_HEIGHT / 2;
+        this.mesh.position.y = CAR_HEIGHT / 2; // Reset Y position to base
+        this.mesh.rotation.z = 0; // Reset tilt
+        this.currentTiltAngle = 0; // Reset current tilt angle
         // Ensure collider is also reset/updated
         this.mesh.updateMatrixWorld(true);
         this.collider.setFromObject(this.mesh);

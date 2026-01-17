@@ -11,8 +11,12 @@ import { GameOverScreen } from '../ui/GameOverScreen';
 import {
     GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
-    GAME_SPEED_INCREMENT_PER_SECOND
-    // ROAD_LENGTH // Removed as it's not directly used in Game.ts
+    GAME_SPEED_INCREMENT_PER_SECOND,
+    NEAR_MISS_SHAKE_INTENSITY, // New
+    NEAR_MISS_FLASH_DURATION, // New
+    COLLISION_SHAKE_INTENSITY, // New
+    COLLISION_FLASH_DURATION, // New
+    COLLISION_FREEZE_DURATION // New
 } from '../utils/constants';
 
 // Define possible game states for clarity and control flow
@@ -48,7 +52,8 @@ export class Game {
         this.collisionSystem = new CollisionSystem(
             this.car,
             this.obstacleSpawner.getObstacles(),
-            this.endGame.bind(this)
+            this.endGame.bind(this),
+            this.handleNearMiss.bind(this) // New: Pass a callback for near misses
         );
 
         this.init(); // Initialize game components to their starting state
@@ -96,7 +101,7 @@ export class Game {
         this.lastFrameTime = currentTime;
 
         if (this.gameState === 'playing') {
-            this.update(deltaTime);
+            this.update(deltaTime, currentTime);
         }
 
         this.render(); // Always render, even if paused, to display static scene or UI
@@ -107,8 +112,9 @@ export class Game {
     /**
      * Updates all game logic and state based on the elapsed time.
      * @param deltaTime The time elapsed since the last frame in seconds.
+     * @param currentTime The total elapsed time, for pulsation and shake effects.
      */
-    private update(deltaTime: number): void {
+    private update(deltaTime: number, currentTime: DOMHighResTimeStamp): void {
         // Gradually increase game speed over time, capped at MAX_SPEED
         this.currentSpeed = Math.min(
             GAME_SPEED_MAX,
@@ -124,13 +130,16 @@ export class Game {
         // Optional boost not implemented yet as per spec: "W / Arrow Up (optional) → Slight forward boost"
 
         // Update all game components
-        this.car.update(deltaTime);
-        this.road.update(deltaTime, this.currentSpeed);
-        this.obstacleSpawner.update(deltaTime, this.currentSpeed);
+        this.car.update(deltaTime, currentTime / 1000); // Pass current time for car animations
+        this.road.update(deltaTime, this.currentSpeed, currentTime / 1000); // Pass current time in seconds for pulsation
+        this.obstacleSpawner.update(deltaTime, this.currentSpeed, currentTime); // Pass current time for obstacle visuals
         // Ensure the collision system always checks against the most current list of obstacles
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.collisionSystem.update(); // Perform collision checks
         this.scoreSystem.update(deltaTime, this.currentSpeed);
+
+        // Update scene environment based on speed and time
+        this.sceneManager.updateEnvironment(this.currentSpeed, currentTime / 1000, deltaTime);
 
         // Update the HUD display
         this.hud.updateScore(this.scoreSystem.getScore());
@@ -152,11 +161,19 @@ export class Game {
      */
     private endGame(): void {
         this.gameState = 'gameOver';
-        if (this.animationFrameId !== null) {
-            cancelAnimationFrame(this.animationFrameId); // Stop the animation loop
-            this.animationFrameId = null;
-        }
-        this.gameOverScreen.show(this.scoreSystem.getScore()); // Display final score
+
+        // Trigger collision feedback
+        this.sceneManager.triggerDramaticShake(COLLISION_SHAKE_INTENSITY);
+        this.sceneManager.triggerCollisionFlash(COLLISION_FLASH_DURATION);
+
+        // Implement freeze-frame effect
+        setTimeout(() => {
+            if (this.animationFrameId !== null) {
+                cancelAnimationFrame(this.animationFrameId); // Stop the animation loop
+                this.animationFrameId = null;
+            }
+            this.gameOverScreen.show(this.scoreSystem.getScore()); // Display final score
+        }, COLLISION_FREEZE_DURATION * 1000); // Convert seconds to milliseconds
     }
 
     /**
@@ -165,6 +182,16 @@ export class Game {
     private restartGame(): void {
         this.init(); // Reset all game components
         this.start(); // Start a new game loop
+    }
+
+    public getCurrentSpeed(): number {
+        return this.currentSpeed;
+    }
+
+    private handleNearMiss(): void {
+        // Trigger small camera shake and light flash
+        this.sceneManager.triggerSmallShake(NEAR_MISS_SHAKE_INTENSITY);
+        this.sceneManager.triggerLightFlash(NEAR_MISS_FLASH_DURATION);
     }
 
     /**
