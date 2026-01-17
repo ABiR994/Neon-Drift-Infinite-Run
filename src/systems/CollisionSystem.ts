@@ -1,8 +1,7 @@
 // src/systems/CollisionSystem.ts
-import * as THREE from 'three';
 import { Car } from '../entities/Car';
 import { Obstacle } from '../entities/Obstacle';
-import { NEAR_MISS_DISTANCE, CAR_WIDTH } from '../utils/constants';
+import { NEAR_MISS_DISTANCE } from '../utils/constants'; // Removed CAR_WIDTH as it's not used directly anymore
 
 export class CollisionSystem {
     private car: Car;
@@ -39,17 +38,18 @@ export class CollisionSystem {
             // Check for near miss: If the car and obstacle are close but not colliding
             // Only check if not already colliding
             if (!nearMissDetectedThisFrame) { // Check only once per frame
-                // Simplified near-miss check:
-                // Check distance in Z-axis (forward/backward)
-                const obstacleDepth = (obstacle.mesh.geometry as THREE.BoxGeometry).parameters.depth;
-                const carDepth = (this.car.mesh.geometry as THREE.BoxGeometry).parameters.depth;
+                // Check distance in Z-axis (forward/backward) using collider dimensions
+                const obstacleDepth = obstacle.collider.max.z - obstacle.collider.min.z;
+                const carDepth = this.car.collider.max.z - this.car.collider.min.z;
                 const zDistance = Math.abs(this.car.mesh.position.z - obstacle.mesh.position.z) - (carDepth / 2) - (obstacleDepth / 2);
-                // Check distance in X-axis (sideways)
-                const obstacleWidth = (obstacle.mesh.geometry as THREE.BoxGeometry).parameters.width;
-                const xDistance = Math.abs(this.car.mesh.position.x - obstacle.mesh.position.x) - (CAR_WIDTH / 2) - (obstacleWidth / 2);
+                
+                // Check distance in X-axis (sideways) using collider dimensions
+                const obstacleWidth = obstacle.collider.max.x - obstacle.collider.min.x;
+                const carWidth = this.car.collider.max.x - this.car.collider.min.x;
+                const xDistance = Math.abs(this.car.mesh.position.x - obstacle.mesh.position.x) - (carWidth / 2) - (obstacleWidth / 2);
 
                 if (zDistance < NEAR_MISS_DISTANCE && zDistance > -NEAR_MISS_DISTANCE / 2 && // Close in Z, but car hasn't fully passed yet
-                    xDistance < NEAR_MISS_DISTANCE && xDistance > -CAR_WIDTH) { // Close in X
+                    xDistance < NEAR_MISS_DISTANCE && xDistance > -carWidth) { // Close in X, compare to carWidth
                     nearMissDetectedThisFrame = true;
                 }
             }
