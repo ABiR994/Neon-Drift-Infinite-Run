@@ -17,10 +17,7 @@ import {
     ROAD_EDGE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER,
     ROAD_SEGMENT_EMISSIVE_INTENSITY,
     ROAD_PULSE_SPEED,
-    ROAD_PULSE_AMPLITUDE,
-    ROAD_COLOR_CYCLE_SPEED,
-    ROAD_COLOR_CYCLE_SATURATION,
-    ROAD_COLOR_CYCLE_LIGHTNESS
+    ROAD_PULSE_AMPLITUDE
 } from '../utils/constants';
 
 export class Road {
@@ -31,19 +28,13 @@ export class Road {
     private roadMaterial: THREE.MeshStandardMaterial;
     private laneLineMaterial: THREE.MeshStandardMaterial;
     private edgeLineMaterial: THREE.MeshStandardMaterial;
-    private roadHueOffset: number = 0; // For road color cycling
-    private roadColorBase: THREE.Color; // Base color for the road
-    private roadColorHSL: { h: number, s: number, l: number } = { h: 0, s: 0, l: 0 }; // HSL representation of road color
 
     constructor(scene: THREE.Scene) {
         this.scene = scene;
         // Initialize materials here
-        this.roadColorBase = new THREE.Color(ROAD_COLOR);
-        this.roadColorBase.getHSL(this.roadColorHSL);
-
         this.roadMaterial = new THREE.MeshStandardMaterial({
-            color: this.roadColorBase,
-            emissive: this.roadColorBase,
+            color: ROAD_COLOR,
+            emissive: ROAD_COLOR,
             emissiveIntensity: ROAD_SEGMENT_EMISSIVE_INTENSITY,
             metalness: 0.8, // Make it reflective
             roughness: 0.5 // Adjust for desired shininess
@@ -208,20 +199,6 @@ export class Road {
         const baseEdgeIntensity = ROAD_EDGE_EMISSIVE_INTENSITY_MIN * (1 + t * (ROAD_EDGE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
         const pulseEdge = Math.sin(time * ROAD_PULSE_SPEED + Math.PI / 2) * ROAD_PULSE_AMPLITUDE + 1; // Offset phase for a more dynamic look
         this.edgeLineMaterial.emissiveIntensity = baseEdgeIntensity * pulseEdge;
-
-        // Road color cycling over time
-        this.roadHueOffset = (this.roadHueOffset + ROAD_COLOR_CYCLE_SPEED * deltaTime) % 1; // Cycle hue from 0 to 1
-
-        this.roadMaterial.color.setHSL(
-            (this.roadColorHSL.h + this.roadHueOffset) % 1,
-            ROAD_COLOR_CYCLE_SATURATION,
-            ROAD_COLOR_CYCLE_LIGHTNESS
-        );
-        this.roadMaterial.emissive.setHSL(
-            (this.roadColorHSL.h + this.roadHueOffset) % 1,
-            ROAD_COLOR_CYCLE_SATURATION,
-            ROAD_COLOR_CYCLE_LIGHTNESS
-        );
     }
 
     /**
@@ -260,12 +237,9 @@ export class Road {
                 edgeIndex++;
             }
         }
-        // Also reset emissive intensity and road color cycling
+        // Also reset emissive intensity
         this.laneLineMaterial.emissiveIntensity = ROAD_LINE_EMISSIVE_INTENSITY_MIN;
         this.edgeLineMaterial.emissiveIntensity = ROAD_EDGE_EMISSIVE_INTENSITY_MIN;
-        this.roadHueOffset = 0; // Reset hue offset
-        this.roadMaterial.color.set(this.roadColorBase);
-        this.roadMaterial.emissive.set(this.roadColorBase);
     }
 
 

@@ -8,9 +8,7 @@ import {
     OBSTACLE_SPAWN_INTERVAL_MIN,
     OBSTACLE_SPAWN_INTERVAL_DECREASE_RATE,
     CAR_INITIAL_Z,
-    OBSTACLE_PATTERN_CHANCE_DOUBLE,
-    OBSTACLE_PATTERN_CHANCE_ZIGZAG, // Import new constant
-    OBSTACLE_ZIGZAG_LENGTH // Import new constant
+    OBSTACLE_PATTERN_CHANCE_DOUBLE // Import new constant
 } from '../utils/constants';
 import { getRandomInt } from '../utils/helpers'; // Removed clamp
 
@@ -20,7 +18,6 @@ export class ObstacleSpawner {
     private timeSinceLastSpawn: number = 0;
     private currentSpawnInterval: number;
     private totalGameTime: number = 0;
-    private nextZigzagPattern: { startLane: number, length: number, currentStep: number } | null = null; // Manage zigzag pattern state
 
     constructor(scene: THREE.Scene) {
         this.scene = scene;
@@ -69,50 +66,40 @@ export class ObstacleSpawner {
     private spawnObstacle(): void {
         const spawnZ = CAR_INITIAL_Z - ROAD_LENGTH - getRandomInt(ROAD_LENGTH / 4, ROAD_LENGTH / 2);
 
-        // Handle active zigzag pattern
-        if (this.nextZigzagPattern) {
-            const { startLane, length, currentStep } = this.nextZigzagPattern;
-            if (currentStep < length) {
-                // Determine the lane for the current step in the zigzag
-                let laneToSpawn;
-                if (currentStep % 2 === 0) { // Even step: start lane
-                    laneToSpawn = startLane;
-                } else { // Odd step: adjacent lane
-                    laneToSpawn = (startLane + 1) % LANE_COUNT; // Move to adjacent lane
-                }
-                this.obstacles.push(new Obstacle(this.scene, laneToSpawn, spawnZ));
-                this.nextZigzagPattern.currentStep++;
-            } else {
-                // Zigzag pattern finished
-                this.nextZigzagPattern = null;
-            }
-            return; // Obstacle spawned, exit
-        }
+        // Determine obstacle pattern
+        const patternType = Math.random() < OBSTACLE_PATTERN_CHANCE_DOUBLE ? 'DOUBLE' : 'SINGLE';
 
-        // Decide pattern type if no zigzag is active
-        const rand = Math.random();
-        if (rand < OBSTACLE_PATTERN_CHANCE_ZIGZAG && LANE_COUNT >= 2) {
-            // Start a new zigzag pattern
-            this.nextZigzagPattern = {
-                startLane: getRandomInt(0, LANE_COUNT - 1),
-                length: OBSTACLE_ZIGZAG_LENGTH,
-                currentStep: 0
-            };
-            this.spawnObstacle(); // Immediately spawn the first obstacle of the zigzag
-            } else if (rand < OBSTACLE_PATTERN_CHANCE_DOUBLE + OBSTACLE_PATTERN_CHANCE_ZIGZAG && LANE_COUNT >= 2) {
-                // DOUBLE pattern
-                let lane1 = getRandomInt(0, LANE_COUNT - 1);
-                let lane2 = getRandomInt(0, LANE_COUNT - 1);
-                while (lane2 === lane1) {
-                    lane2 = getRandomInt(0, LANE_COUNT - 1);
-                }
-                this.obstacles.push(new Obstacle(this.scene, lane1, spawnZ));
-                this.obstacles.push(new Obstacle(this.scene, lane2, spawnZ));
-            } else {
-                // SINGLE pattern
+        if (patternType === 'SINGLE') {
             const randomLane = getRandomInt(0, LANE_COUNT - 1);
             const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
             this.obstacles.push(newObstacle);
+        } else if (patternType === 'DOUBLE') {
+            // Ensure there are at least 2 lanes for a double obstacle
+            if (LANE_COUNT >= 2) {
+                let lane1 = getRandomInt(0, LANE_COUNT - 1);
+                let lane2 = getRandomInt(0, LANE_COUNT - 1);
+
+                // Ensure two different lanes are selected
+                while (lane2 === lane1) {
+                    lane2 = getRandomInt(0, LANE_COUNT - 1);
+                }
+
+                // Ensure there's at least one empty lane if LANE_COUNT > 2
+                // Or simply spawn in two different lanes if LANE_COUNT is 2
+                if (LANE_COUNT > 2) {
+                    // To ensure at least one open lane, we select two lanes out of N
+                    // The above random selection already ensures two distinct lanes.
+                    // No further logic needed here as we only care that they are distinct.
+                }
+
+                this.obstacles.push(new Obstacle(this.scene, lane1, spawnZ));
+                this.obstacles.push(new Obstacle(this.scene, lane2, spawnZ));
+            } else {
+                // Fallback to single if not enough lanes for double
+                const randomLane = getRandomInt(0, LANE_COUNT - 1);
+                const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
+                this.obstacles.push(newObstacle);
+            }
         }
     }
 
@@ -132,7 +119,6 @@ export class ObstacleSpawner {
         this.timeSinceLastSpawn = 0;
         this.currentSpawnInterval = OBSTACLE_SPAWN_INTERVAL_INITIAL;
         this.totalGameTime = 0;
-        this.nextZigzagPattern = null; // Clear any active zigzag pattern
     }
 
     /**

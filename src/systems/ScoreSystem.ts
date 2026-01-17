@@ -7,7 +7,6 @@ export class ScoreSystem {
     private timeSurvived: number = 0;
     private scoreMultiplier: number = 1;
     private onMilestoneReachedCallback?: (milestoneScore: number) => void;
-    private onScoreChangedCallback?: (newScore: number) => void; // New: Callback for score changes
 
     constructor() {
         this.reset();
@@ -17,20 +16,12 @@ export class ScoreSystem {
         this.onMilestoneReachedCallback = callback;
     }
 
-    public setOnScoreChangedCallback(callback: (newScore: number) => void): void {
-        this.onScoreChangedCallback = callback;
-    }
-
     public update(deltaTime: number, currentSpeed: number): void {
         const oldScore = this.score; // Store old score before updating
 
         this.timeSurvived += deltaTime;
         this.distanceTraveled += currentSpeed * deltaTime;
         this.score = Math.max(0, Math.floor((this.distanceTraveled * 0.1) + (this.timeSurvived * 0.5)) * this.scoreMultiplier);
-        
-        if (this.score !== oldScore && this.onScoreChangedCallback) {
-            this.onScoreChangedCallback(this.score);
-        }
 
         // Check for milestones
         const currentMilestone = Math.floor(this.score / MILESTONE_INTERVAL);
@@ -38,23 +29,6 @@ export class ScoreSystem {
 
         if (currentMilestone > lastMilestone && currentMilestone > 0) {
             // A new milestone has been reached
-            const milestoneScore = currentMilestone * MILESTONE_INTERVAL;
-            if (this.onMilestoneReachedCallback) {
-                this.onMilestoneReachedCallback(milestoneScore);
-            }
-        }
-    }
-
-    public addPerfectDodgeBonus(bonus: number): void {
-        const oldScore = this.score;
-        this.score += bonus;
-        if (this.onScoreChangedCallback) {
-            this.onScoreChangedCallback(this.score);
-        }
-        // Also check for milestones after a bonus
-        const currentMilestone = Math.floor(this.score / MILESTONE_INTERVAL);
-        const lastMilestone = Math.floor(oldScore / MILESTONE_INTERVAL);
-        if (currentMilestone > lastMilestone && currentMilestone > 0) {
             const milestoneScore = currentMilestone * MILESTONE_INTERVAL;
             if (this.onMilestoneReachedCallback) {
                 this.onMilestoneReachedCallback(milestoneScore);

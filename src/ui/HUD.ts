@@ -8,8 +8,6 @@ export class HUD {
     private speedElement: HTMLElement | null;
     private displayedSpeed: { value: number } = { value: 0 };
     private speedTween: TWEEN.Tween<typeof this.displayedSpeed> | null = null;
-    private displayedScore: { value: number } = { value: 0 }; // For animated score
-    private scoreTween: TWEEN.Tween<typeof this.displayedScore> | null = null; // Tween for score animation
 
     constructor() {
         this.hudElement = document.querySelector('#hud');
@@ -29,21 +27,10 @@ export class HUD {
         this.reset();
     }
 
-    public updateScore(newScore: number): void {
-        // Animate score value
+    public updateScore(score: number): void {
+        // Direct update for score, no tweening
         if (this.scoreElement) {
-            if (this.scoreTween) {
-                this.scoreTween.stop();
-            }
-            this.scoreTween = new TWEEN.Tween(this.displayedScore)
-                .to({ value: newScore }, 500) // Animate over 500ms
-                .easing(TWEEN.Easing.Quadratic.Out)
-                .onUpdate(() => {
-                    if (this.scoreElement) {
-                        this.scoreElement.textContent = Math.floor(this.displayedScore.value).toString();
-                    }
-                })
-                .start();
+            this.scoreElement.textContent = Math.floor(score).toString();
         }
     }
 
@@ -87,11 +74,7 @@ export class HUD {
         if (this.speedTween) {
             this.speedTween.stop();
         }
-        if (this.scoreTween) { // Stop score tween on reset
-            this.scoreTween.stop();
-        }
         // Directly reset score display
-        this.displayedScore.value = 0; // Reset internal animated score value
         if (this.scoreElement) {
             this.scoreElement.textContent = '0';
             console.log('HUD.reset() - scoreElement.textContent set to:', this.scoreElement.textContent); // DEBUG
@@ -110,9 +93,6 @@ export class HUD {
     public dispose(): void {
         if (this.speedTween) {
             this.speedTween.stop();
-        }
-        if (this.scoreTween) { // Stop score tween on dispose
-            this.scoreTween.stop();
         }
         // No event listeners to remove from HUD elements directly, as they are queried but not attached.
     }

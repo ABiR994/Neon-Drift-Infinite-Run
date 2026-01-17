@@ -51,19 +51,15 @@ export class Car {
 
         const car = new THREE.Mesh(carGeometry, carMaterial);
 
-        // Add rim lighting effect: a thin, highly emissive mesh outlining the car
-        // This simulates a neon outline or rim light without complex shaders.
-        const rimThickness = 0.05; // How much thicker the rim is than the car
-        const rimGeometry = new THREE.BoxGeometry(
-            CAR_WIDTH + rimThickness,
-            CAR_HEIGHT + rimThickness,
-            CAR_DEPTH + rimThickness
-        );
-        const rimMaterial = new THREE.MeshBasicMaterial({ // Use MeshBasicMaterial for pure emissive light
-            color: new THREE.Color(0x00e6e6), // Bright neon cyan for a sharp rim light
+        // Add rim glow effect: a slightly larger, emissive mesh as a child
+        const rimGeometry = new THREE.BoxGeometry(CAR_WIDTH * 1.05, CAR_HEIGHT * 1.05, CAR_DEPTH * 1.05); // Slightly larger
+        const rimMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0x00ffff), // Neon blue/cyan for rim, or CAR_COLOR for consistent glow
+            emissive: new THREE.Color(0x00ffff),
+            emissiveIntensity: 1.5, // Strong glow
             transparent: true,
-            opacity: 0.6, // More opaque for a stronger, more defined line
-            blending: THREE.AdditiveBlending // Makes the glow additive
+            opacity: 0.3, // Subtle transparency
+            blending: THREE.AdditiveBlending // Enhance glow effect
         });
         const rimMesh = new THREE.Mesh(rimGeometry, rimMaterial);
         car.add(rimMesh);

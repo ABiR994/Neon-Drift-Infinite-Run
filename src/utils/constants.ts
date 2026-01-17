@@ -77,17 +77,20 @@ export const OBSTACLE_PULSE_AMPLITUDE = 0.2; // Amplitude of the pulsation for o
 
 // Obstacle patterns
 export const OBSTACLE_PATTERN_CHANCE_DOUBLE = 0.3; // 30% chance for a double obstacle pattern
-export const OBSTACLE_PATTERN_CHANCE_ZIGZAG = 0.15; // 15% chance to start a zigzag pattern
-export const OBSTACLE_ZIGZAG_LENGTH = 3; // Number of obstacles in a zigzag pattern
 
-// Perfect Dodge constants
-export const PERFECT_DODGE_DISTANCE = 1; // Max distance for a perfect dodge
-export const PERFECT_DODGE_BONUS_SCORE = 50; // Score awarded for a perfect dodge
+// Road emissive and pulsation constants
+export const ROAD_LINE_EMISSIVE_INTENSITY_MIN = 0.5;
+export const ROAD_LINE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER = 1.5; // Max intensity at max speed
+export const ROAD_EDGE_EMISSIVE_INTENSITY_MIN = 0.8;
+export const ROAD_EDGE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER = 1.8; // Max intensity at max speed
+export const ROAD_SEGMENT_EMISSIVE_INTENSITY = 0.05; // Subtle glow for road segments
+export const ROAD_PULSE_SPEED = 5; // How fast the emissive intensity pulses
+export const ROAD_PULSE_AMPLITUDE = 0.1; // Amplitude of the pulsation
 
-// Road color cycle constants
-export const ROAD_COLOR_CYCLE_SPEED = 0.05; // How fast the road color cycles (lower is slower)
-export const ROAD_COLOR_CYCLE_SATURATION = 0.5; // Saturation for the road color
-export const ROAD_COLOR_CYCLE_LIGHTNESS = 0.05; // Lightness for the road color
+// Lighting constants
+export const AMBIENT_LIGHT_COLOR = 0x444444;
+export const DIRECTIONAL_LIGHT_COLOR = 0xffffff;
+export const DIRECTIONAL_LIGHT_INTENSITY = 0.8;
 
 // UI elements (CSS selectors)
 export const UI_SELECTORS = {

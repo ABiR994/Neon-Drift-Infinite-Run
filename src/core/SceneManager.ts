@@ -21,28 +21,10 @@ import {
     CAMERA_TILT_MAX_ANGLE,
     CAMERA_SHAKE_MAX_INTENSITY,
     CAMERA_SHAKE_SPEED_THRESHOLD,
-    CAMERA_SHAKE_FREQUENCY,
-    SKYBOX_SIZE,
-    SKYBOX_COLOR_TOP,
-    SKYBOX_COLOR_BOTTOM,
-    SKYBOX_ROTATION_SPEED,
-    LIGHT_STREAK_COLOR,
-    LIGHT_STREAK_WIDTH,
-    LIGHT_STREAK_LENGTH,
-    LIGHT_STREAK_COUNT,
-    LIGHT_STREAK_SCROLL_SPEED_MULTIPLIER,
-    BLOOM_ENABLED,
-    BLOOM_STRENGTH,
-    BLOOM_RADIUS,
-    BLOOM_THRESHOLD
+    CAMERA_SHAKE_FREQUENCY
 } from '../utils/constants';
 
 import * as TWEEN from '@tweenjs/tween.js'; // Import TWEEN.js
-
-// Post-processing imports
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 // This is a temporary bypass for a persistent LSP error.
 // The CAMERA_NEAR constant should ideally be imported from constants.ts.
@@ -60,9 +42,6 @@ export class SceneManager {
     private originalDirectionalLightIntensity: number | null = null; // Store original directional light intensity
     private shakeTimer: number = 0; // Timer for camera shake duration
     private currentShakeIntensity: number = 0; // Current intensity for temporary shakes
-    private skyboxMesh: THREE.Mesh | null = null; // Add skybox mesh property
-    private lightStreaks: THREE.Mesh[] = []; // Add light streaks property
-    private composer: EffectComposer | null = null; // Add EffectComposer property
 
     constructor(containerId: string) {
         // Find the container element where the game will be rendered
@@ -104,112 +83,11 @@ export class SceneManager {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Use PCFSoftShadowMap for softer shadow edges
         this.container.appendChild(this.renderer.domElement);
 
-        // Configure renderer for bloom if enabled
-        if (BLOOM_ENABLED) {
-            this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            this.renderer.toneMappingExposure = 1.25; // Adjust as needed
-            this.renderer.outputColorSpace = THREE.SRGBColorSpace; // Use SRGBColorSpace
-
-            this.composer = new EffectComposer(this.renderer);
-            this.composer.addPass(new RenderPass(this.scene, this.camera));
-
-            const bloomPass = new UnrealBloomPass(
-                new THREE.Vector2(this.container.clientWidth, this.container.clientHeight),
-                BLOOM_STRENGTH,
-                BLOOM_RADIUS,
-                BLOOM_THRESHOLD
-            );
-            this.composer.addPass(bloomPass);
-        }
-
         // Setup lighting for the scene
         this.setupLighting();
 
         // Register event listener for window resizing
         window.addEventListener('resize', this.onWindowResize.bind(this));
-
-        // Setup skybox
-        this.setupSkybox();
-
-        // Setup light streaks
-        this.setupLightStreaks();
-    }
-
-    private createGradientTexture(color1: number, color2: number): THREE.Texture {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1;
-        canvas.height = 256; // A power of 2 for better performance
-
-        const context = canvas.getContext('2d')!;
-        const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#' + new THREE.Color(color1).getHexString());
-        gradient.addColorStop(1, '#' + new THREE.Color(color2).getHexString());
-
-        context.fillStyle = gradient;
-        context.fillRect(0, 0, 1, canvas.height);
-
-        return new THREE.CanvasTexture(canvas);
-    }
-
-    private createLightStreakTexture(): THREE.Texture {
-        const canvas = document.createElement('canvas');
-        canvas.width = 16;
-        canvas.height = 128; // Longer for a streak
-
-        const context = canvas.getContext('2d')!;
-        const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-        // Start transparent, fade to color, then transparent again
-        gradient.addColorStop(0, 'rgba(0,0,0,0)');
-        gradient.addColorStop(0.2, '#' + new THREE.Color(LIGHT_STREAK_COLOR).getHexString());
-        gradient.addColorStop(0.8, '#' + new THREE.Color(LIGHT_STREAK_COLOR).getHexString());
-        gradient.addColorStop(1, 'rgba(0,0,0,0)');
-
-        context.fillStyle = gradient;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-
-        return new THREE.CanvasTexture(canvas);
-    }
-
-    private setupSkybox(): void {
-        const skyGeo = new THREE.SphereGeometry(SKYBOX_SIZE, 32, 32);
-        const gradientTexture = this.createGradientTexture(SKYBOX_COLOR_TOP, SKYBOX_COLOR_BOTTOM);
-        gradientTexture.needsUpdate = true; // Ensure the texture updates
-
-        const skyMat = new THREE.MeshBasicMaterial({
-            map: gradientTexture,
-            side: THREE.BackSide, // Render the inside of the sphere
-            fog: false // Skybox should not be affected by fog
-        });
-
-        this.skyboxMesh = new THREE.Mesh(skyGeo, skyMat);
-        // Skybox should always be centered on the camera
-        this.skyboxMesh.position.copy(this.camera.position);
-        this.scene.add(this.skyboxMesh);
-    }
-
-    private setupLightStreaks(): void {
-        const streakGeometry = new THREE.PlaneGeometry(LIGHT_STREAK_WIDTH, LIGHT_STREAK_LENGTH);
-        const streakTexture = this.createLightStreakTexture();
-        streakTexture.needsUpdate = true;
-
-        const streakMaterial = new THREE.MeshBasicMaterial({
-            map: streakTexture,
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false, // Prevents issues with transparency
-            fog: false // Streaks should not be affected by fog
-        });
-
-        for (let i = 0; i < LIGHT_STREAK_COUNT; i++) {
-            const streak = new THREE.Mesh(streakGeometry, streakMaterial);
-            streak.rotation.x = -Math.PI / 2; // Lay flat
-            // Position randomly within road width and along Z axis
-            streak.position.x = (Math.random() - 0.5) * ROAD_WIDTH * 0.8; // 80% of road width
-            streak.position.y = 0.02; // Slightly above road
-            streak.position.z = Math.random() * -ROAD_LENGTH * 2; // Spawn further back, spread out
-            this.scene.add(streak);
-            this.lightStreaks.push(streak);
-        }
     }
 
     private setupLighting(): void {
@@ -249,9 +127,6 @@ export class SceneManager {
         this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera.updateProjectionMatrix(); // Update camera's projection matrix after aspect change
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-        if (this.composer) { // Update composer size if it exists
-            this.composer.setSize(this.container.clientWidth, this.container.clientHeight);
-        }
     }
 
     public getScene(): THREE.Scene {
@@ -270,11 +145,7 @@ export class SceneManager {
      * Renders the scene from the camera's perspective. This is called in the main game loop.
      */
     public render(): void {
-        if (this.composer) {
-            this.composer.render();
-        } else {
-            this.renderer.render(this.scene, this.camera);
-        }
+        this.renderer.render(this.scene, this.camera);
     }
 
     /**
@@ -305,30 +176,6 @@ export class SceneManager {
             }
             this.scene.remove(child);
         });
-
-        // Dispose of skybox resources
-        if (this.skyboxMesh) {
-            this.scene.remove(this.skyboxMesh);
-            (this.skyboxMesh.geometry as THREE.BufferGeometry).dispose();
-            (this.skyboxMesh.material as THREE.Material).dispose();
-            this.skyboxMesh = null;
-        }
-
-        // Dispose of light streak resources
-        for (const streak of this.lightStreaks) {
-            this.scene.remove(streak);
-            (streak.geometry as THREE.BufferGeometry).dispose();
-            (streak.material as THREE.Material).dispose();
-        }
-        this.lightStreaks = [];
-
-        // Dispose of composer resources
-        if (this.composer) {
-            this.composer.renderTarget1.dispose();
-            this.composer.renderTarget2.dispose();
-            this.composer = null;
-        }
-
         // Reset camera properties to initial
         this.camera.rotation.x = this.initialCameraRotationX;
         this.camera.position.copy(this.initialCameraPosition);
@@ -403,19 +250,10 @@ export class SceneManager {
         const normalizedSpeed = (speed - GAME_SPEED_INITIAL) / (GAME_SPEED_MAX - GAME_SPEED_INITIAL);
         const t = Math.max(0, Math.min(1, normalizedSpeed)); // Clamp t between 0 and 1
 
-         // 1. Update Fog Density (exponential fog) and animate its color
+        // 1. Update Fog Density (exponential fog)
         // Lerp from initial density to (initial * max_speed_multiplier)
         const currentFogDensity = FOG_DENSITY_INITIAL * (1 + t * (FOG_DENSITY_MAX_SPEED_MULTIPLIER - 1));
-        const fog = this.scene.fog as THREE.FogExp2;
-        fog.density = currentFogDensity;
-
-        // Subtle animation of fog color: slight hue shift over time
-        // This creates a "moving" or "breathing" fog effect without complex shaders.
-        // We'll use a small sinusoidal oscillation for the hue.
-        const hueShift = Math.sin(time * 0.1) * 0.02; // Oscillate hue by +/- 0.02
-        const baseFogColor = new THREE.Color(FOG_COLOR);
-        baseFogColor.offsetHSL(hueShift, 0, 0); // Apply hue shift
-        fog.color.copy(baseFogColor);
+        (this.scene.fog as THREE.FogExp2).density = currentFogDensity;
 
         // 2. Update Camera FOV
         // Lerp from initial FOV to (initial FOV * max_fov_speed_multiplier)
@@ -462,24 +300,6 @@ export class SceneManager {
                     this.camera.position.x = this.initialCameraPosition.x;
                     this.camera.position.y = this.initialCameraPosition.y;
                 }
-            }
-        }
-
-        // 5. Update Skybox
-        if (this.skyboxMesh) {
-            // Keep skybox centered on camera
-            this.skyboxMesh.position.copy(this.camera.position);
-            // Rotate the skybox subtly
-            this.skyboxMesh.rotation.y += SKYBOX_ROTATION_SPEED;
-        }
-
-        // 6. Scroll Light Streaks
-        const streakScrollAmount = speed * deltaTime * LIGHT_STREAK_SCROLL_SPEED_MULTIPLIER;
-        for (const streak of this.lightStreaks) {
-            streak.position.z += streakScrollAmount;
-            // If a streak moves past the camera, reposition it to the far end
-            if (streak.position.z > this.camera.position.z + CAR_INITIAL_Z) { // Reposition relative to camera
-                streak.position.z -= ROAD_LENGTH * 2 + LIGHT_STREAK_LENGTH; // Adjust Z position
             }
         }
     }

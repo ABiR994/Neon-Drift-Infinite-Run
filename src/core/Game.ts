@@ -17,8 +17,7 @@ import {
     NEAR_MISS_FLASH_DURATION,
     COLLISION_SHAKE_INTENSITY,
     COLLISION_FLASH_DURATION,
-    COLLISION_FREEZE_DURATION,
-    PERFECT_DODGE_BONUS_SCORE // Import the new constant
+    COLLISION_FREEZE_DURATION
 } from '../utils/constants';
 
 import * as TWEEN from '@tweenjs/tween.js';
@@ -57,13 +56,10 @@ export class Game {
             this.car,
             this.obstacleSpawner.getObstacles(),
             this.endGame.bind(this),
-            this.handleNearMiss.bind(this),
-            this.handlePerfectDodge.bind(this)
+            this.handleNearMiss.bind(this)
         );
 
         this.scoreSystem.setOnMilestoneReachedCallback(this.handleMilestoneReached.bind(this));
-        // Hook up score system to HUD for animated score updates
-        this.scoreSystem.setOnScoreChangedCallback(newScore => this.hud.updateScore(newScore));
 
         this.init();
     }
@@ -176,18 +172,6 @@ export class Game {
         const x = window.innerWidth / 2;
         const y = window.innerHeight / 2;
         this.floatingTextManager.spawnText(text, x, y);
-    }
-
-    private handlePerfectDodge(): void {
-        this.scoreSystem.addPerfectDodgeBonus(PERFECT_DODGE_BONUS_SCORE);
-        // Visual feedback for perfect dodge
-        const text = "PERFECT DODGE!";
-        const x = window.innerWidth / 2;
-        const y = window.innerHeight / 2 + 50; // Slightly lower than milestone
-        this.floatingTextManager.spawnText(text, x, y);
-        // Maybe a subtle screen shake or light flash as well, different from near miss
-        this.sceneManager.triggerSmallShake(0.02); // Very subtle shake
-        this.sceneManager.triggerLightFlash(0.05); // Very brief flash
     }
 
     public dispose(): void {
