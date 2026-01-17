@@ -86,6 +86,14 @@ yarn build
 Compiles the application into optimized static assets located in the `dist/` directory, ready for deployment.
 
 ---
+
+## 🎮 Try It Live
+
+Play **Neon Drift – Infinite Run** right in your browser:
+
+👉 [**Launch Game**](https://abir994.github.io/Neon-Drift-Infinite-Run/)
+
+---
 ## 🧑‍💻 Developed By
 
 - [ABiR994](https://github.com/ABiR994) with OpenCode
