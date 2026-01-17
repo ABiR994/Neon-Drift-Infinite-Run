@@ -29,8 +29,8 @@ export class Car {
         // Initialize collider - it will be updated in the update method
         this.collider = new THREE.Box3();
 
-        // Set initial lane (center lane)
-        this.targetLane = Math.floor(LANE_COUNT / 2);
+        // Set initial lane (leftmost lane as per user request)
+        this.targetLane = 0;
         this.currentLaneX = this.getLanePositionX(this.targetLane);
         this.mesh.position.x = this.currentLaneX;
     }
@@ -127,7 +127,7 @@ export class Car {
      * Resets the car to its initial position and center lane.
      */
     public reset(): void {
-        this.targetLane = Math.floor(LANE_COUNT / 2);
+        this.targetLane = 0; // Reset to leftmost lane
         this.currentLaneX = this.getLanePositionX(this.targetLane);
         this.mesh.position.x = this.currentLaneX;
         this.mesh.position.z = CAR_INITIAL_Z;

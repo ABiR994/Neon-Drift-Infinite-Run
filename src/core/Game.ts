@@ -115,14 +115,11 @@ export class Game {
             this.currentSpeed + GAME_SPEED_INCREMENT_PER_SECOND * deltaTime
         );
 
-        // Handle car movement input
-        if (this.input.isMovingLeft()) {
+        // Handle car movement input (only registers once per key press)
+        if (this.input.isMoveLeftJustPressed()) {
             this.car.moveLeft();
-        } else if (this.input.isMovingRight()) {
+        } else if (this.input.isMoveRightJustPressed()) {
             this.car.moveRight();
-        } else {
-            // If neither left nor right is pressed, return to the middle lane
-            this.car.moveToMiddleLane();
         }
         // Optional boost not implemented yet as per spec: "W / Arrow Up (optional) → Slight forward boost"
 
@@ -137,6 +134,9 @@ export class Game {
 
         // Update the HUD display
         this.hud.updateScore(this.scoreSystem.getScore());
+
+        // Clear "just pressed" keys for the next frame
+        this.input.clearJustPressedKeys();
     }
 
     /**
