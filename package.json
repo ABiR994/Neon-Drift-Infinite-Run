@@ -3,13 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://ABiR994.github.io/Neon-Drift-Infinite-Run/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "postbuild": "cp node_modules/@dimforge/rapier3d-compat/rapier_wasm3d_bg.wasm dist/assets/rapier_wasm3d_bg.wasm",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@types/three": "^0.182.0",
+    "gh-pages": "^6.3.0",
     "typescript": "~5.9.3",
     "vite": "^7.2.4"
   },
