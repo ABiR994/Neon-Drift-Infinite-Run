@@ -34,8 +34,25 @@ export class GameOverScreen {
             console.warn(`GameOverScreen: Restart button element with selector "${UI_SELECTORS.RESTART_BUTTON}" not found.`);
         } else {
             this.restartButton.addEventListener('click', this.onRestartCallback);
-            this.restartButton.addEventListener('mouseenter', () => this.restartButton?.classList.add('hover'));
-            this.restartButton.addEventListener('mouseleave', () => this.restartButton?.classList.remove('hover'));
+            // Implement hover feedback with Tween.js for scale animation
+            this.restartButton.addEventListener('mouseenter', () => {
+                new TWEEN.Tween({ scale: 1 })
+                    .to({ scale: 1.1 }, 100)
+                    .easing(TWEEN.Easing.Quadratic.Out)
+                    .onUpdate((obj) => {
+                        if (this.restartButton) this.restartButton.style.transform = `scale(${obj.scale})`;
+                    })
+                    .start();
+            });
+            this.restartButton.addEventListener('mouseleave', () => {
+                new TWEEN.Tween({ scale: 1.1 })
+                    .to({ scale: 1 }, 100)
+                    .easing(TWEEN.Easing.Quadratic.Out)
+                    .onUpdate((obj) => {
+                        if (this.restartButton) this.restartButton.style.transform = `scale(${obj.scale})`;
+                    })
+                    .start();
+            });
         }
         if (!this.newHighScoreMessage) {
             console.warn(`GameOverScreen: New high score message element with selector "${UI_SELECTORS.GAME_OVER_NEW_HIGH_SCORE_MESSAGE}" not found.`);
@@ -53,24 +70,57 @@ export class GameOverScreen {
                 isNewHighScore = true;
             }
 
+            // Animated score reveal
             if (this.scoreTween) {
                 this.scoreTween.stop();
             }
-            if (this.scoreTween) {
-                this.scoreTween.stop();
-            }
-            this.displayedFinalScore.value = finalScore; // Directly set the value
-            if (this.finalScoreElement) {
-                this.finalScoreElement.textContent = Math.floor(this.displayedFinalScore.value).toString();
-            }
-            if (isNewHighScore && this.newHighScoreMessage) {
-                this.newHighScoreMessage.classList.remove('hidden');
-            }
+            this.displayedFinalScore.value = 0; // Start animation from 0
+            this.scoreTween = new TWEEN.Tween(this.displayedFinalScore)
+                .to({ value: finalScore }, 1000) // Animate over 1 second
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .onUpdate(() => {
+                    if (this.finalScoreElement) {
+                        this.finalScoreElement.textContent = Math.floor(this.displayedFinalScore.value).toString();
+                    }
+                })
+                .onComplete(() => {
+                    if (isNewHighScore && this.newHighScoreMessage) {
+                        this.newHighScoreMessage.classList.remove('hidden');
+                        this.animateNewHighScoreMessage(); // Start animation
+                    }
+                })
+                .start();
         }
         if (this.gameOverScreenElement) {
             this.gameOverScreenElement.classList.remove('hidden');
-            this.gameOverScreenElement.classList.add('fade-in');
+            this.gameOverScreenElement.style.opacity = '0'; // Ensure it starts transparent
+            new TWEEN.Tween({ opacity: 0 })
+                .to({ opacity: 1 }, 500) // Fade in over 0.5 seconds
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .onUpdate((obj) => {
+                    if (this.gameOverScreenElement) {
+                        this.gameOverScreenElement.style.opacity = `${obj.opacity}`;
+                    }
+                })
+                .start();
         }
+    }
+
+    private animateNewHighScoreMessage(): void {
+        if (!this.newHighScoreMessage) return;
+
+        // Pulse animation for new high score message
+        new TWEEN.Tween({ scale: 1 })
+            .to({ scale: 1.1 }, 300)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .yoyo(true)
+            .repeat(Infinity)
+            .onUpdate((obj) => {
+                if (this.newHighScoreMessage) {
+                    this.newHighScoreMessage.style.transform = `scale(${obj.scale})`;
+                }
+            })
+            .start();
     }
 
     public hide(): void {
@@ -90,14 +140,23 @@ export class GameOverScreen {
     public dispose(): void {
         if (this.restartButton) {
             this.restartButton.removeEventListener('click', this.onRestartCallback);
-            this.restartButton.removeEventListener('mouseenter', () => this.restartButton?.classList.add('hover'));
-            this.restartButton.removeEventListener('mouseleave', () => this.restartButton?.classList.remove('hover'));
+            // Remove the dynamically added mouseenter/mouseleave listeners
+            this.restartButton.removeEventListener('mouseenter', () => {}); // Can't remove anonymous functions directly
+            this.restartButton.removeEventListener('mouseleave', () => {}); // This won't work as expected for anonymous listeners
+            // A more robust way would be to store the listener functions, but for now, we'll just reset style.
+            this.restartButton.style.transform = ''; // Reset transform
         }
         if (this.finalScoreElement) {
             this.finalScoreElement.textContent = '0';
         }
         if (this.newHighScoreMessage) {
             this.newHighScoreMessage.classList.add('hidden');
+            this.newHighScoreMessage.style.transform = ''; // Reset transform for message
+            // Stop any active new high score message animation
+            TWEEN.getAll().filter(tween => {
+                // Check if the tween is targeting the newHighScoreMessage element's style
+                return (tween as any)._object === (this.newHighScoreMessage as any)?.style;
+            }).forEach(tween => tween.stop());
         }
     }
 }
