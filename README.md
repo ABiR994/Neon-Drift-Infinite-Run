@@ -1,52 +1,86 @@
-# Neon Drift - Infinite Run
+# 🌌 Neon Drift – Infinite Run
 
-A fast-paced, visually engaging infinite runner game built with Three.js and TypeScript, set in a cyberpunk-inspired environment. This project focuses on enhancing visual quality, game feel, and player feedback through a series of technical and design improvements.
+A fast-paced, visually immersive infinite runner game built with **Three.js** and **TypeScript**, set in a neon-drenched cyberpunk cityscape. Designed to deliver thrilling gameplay, responsive controls, and cinematic visual feedback—all running smoothly in your browser.
+
+[![Live Demo](https://img.shields.io/badge/Play_Game-GitHub_Pages-181717?style=for-the-badge&logo=github&logoColor=white)](https://abir994.github.io/Neon-Drift-Infinite-Run/)
+[![Three.js](https://img.shields.io/badge/Three.js-000000?style=flat&logo=three-dot-js&logoColor=white)](https://threejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
+
+---
 
 ## 🚀 Overview
-**Neon Drift - Infinite Run** provides a thrilling endless runner experience. Players navigate a procedurally generated road, dodging obstacles and mastering lane changes to achieve the highest score. The game leverages Three.js for its 3D environment and TypeScript for robust code structure, with recent updates concentrating on refined visual effects, responsive controls, and clear gameplay feedback.
+
+**Neon Drift – Infinite Run** is an endless 3D runner where players dodge obstacles on a procedurally generated highway while racing through a glowing cyberpunk metropolis. Built with performance and player experience in mind, the game combines smooth lane-shifting mechanics, escalating speed, and rich visual storytelling to create a compelling, replayable challenge.
+
+Every element—from camera motion to neon glows—is tuned to amplify the sensation of speed and urgency, making each run feel intense and rewarding.
+
+---
 
 ## ✨ Core Features
--   **Dynamic Lane Shifting:** Players control precise movements between three distinct lanes to avoid obstacles.
--   **Procedural Environment Generation:** Features an endlessly changing road and obstacle layouts, ensuring replayability.
--   **Responsive Input System:** Utilizes simple keyboard controls for fluid and immediate car maneuvers.
--   **Advanced Neon Cyberpunk Aesthetics:** Immersive visuals are achieved with dynamic lighting, emissive materials on road elements and obstacles, subtle animated fog, and speed-responsive camera effects.
--   **Integrated Scoring System:** Tracks player performance with real-time updates and clear milestone indicators.
--   **Robust Game State Management:** Manages transitions between active gameplay, game over states, and restarts efficiently, supported by polished UI elements.
--   **Enhanced Gameplay Feedback:** Implements distinct visual and haptic feedback for near-misses and collisions, including camera shakes, screen flashes, and brief freeze-frames.
+
+- **🛣️ Dynamic Lane Shifting**: Instantly switch between three lanes using intuitive keyboard controls.
+- **🌀 Procedural World Generation**: Endless road segments and obstacle patterns ensure no two runs are alike.
+- **🎮 Responsive Input System**: Tight, lag-free controls for precise maneuvering at high speeds.
+- **💡 Advanced Cyberpunk Visuals**:  
+  - Emissive neon road edges and obstacles  
+  - Speed-reactive camera tilt, FOV, and shake  
+  - Animated atmospheric fog that thickens as speed increases
+- **📊 Real-Time Scoring**: Track your progress with a dynamic HUD that updates instantly.
+- **🔄 Robust Game States**: Seamless transitions between gameplay, game over, and restart.
+- **💥 Enhanced Feedback System**:  
+  - Near-miss: subtle screen flash + micro camera shake  
+  - Collision: freeze-frame, bright flash, strong shake, and clear “GAME OVER” state
+- **🏆 High Score Tracking**: Personal bests are saved locally and celebrated with visual flair.
+
+---
 
 ## 🕹️ How to Play
 
 ### Controls
--   **Left Arrow** or **A**: Moves the car to the left lane.
--   **Right Arrow** or **D**: Moves the car to the right lane.
--   **R**: Restarts the game after a Game Over.
+- **← Left Arrow** or **A**: Move car to the left lane  
+- **→ Right Arrow** or **D**: Move car to the right lane  
+- **R**: Restart after game over
 
 ### Objective
-Navigate the neon-drenched cityscape, avoiding all obstacles to maximize survival time and score. Game speed progressively increases, demanding continuous player adaptation and quick reflexes.
+Survive as long as possible by dodging obstacles. The game speeds up over time—stay sharp, stay focused, and chase your highest score!
+
+---
 
 ## 🌟 Visual & Gameplay Enhancements
-This project emphasizes a polished and engaging player experience through specific visual and game-feel improvements.
 
-### Visual Enhancements
--   **Dynamic Lighting & Atmosphere:** Features animated fog with density increasing based on game speed, improved depth perception via atmospheric effects, and dynamic camera adjustments (tilt and FOV) to enhance speed perception.
--   **Emissive Neon Elements:** Road edges, lane markers, and obstacles incorporate emissive materials with subtle, speed-synchronized pulsing glows, contributing to the cyberpunk theme.
--   **Motion & Speed Cues:** Includes gentle camera shake at high speeds and visual effects like scrolling light streaks to intensify the sensation of rapid movement.
+### 🎨 Visual Polish
+- **Emissive Materials**: All key elements (road markings, barriers, pylons) glow with pulsing neon hues synchronized to game speed.
+- **Atmospheric Depth**: Layered fog and depth-of-field effects enhance immersion and spatial awareness.
+- **Motion Cues**: Scrolling light streaks, parallax backgrounds, and dynamic camera behavior sell the illusion of extreme velocity.
 
-### Game Feel & Feedback
--   **Tactile Movement:** Car maneuvers are enhanced with smooth tilt during lane changes and subtle bounce/suspension effects, providing more responsive tactile feedback.
--   **Critical Event Indicators:** Near-miss events trigger small camera shakes and light flashes. Collisions are marked by freeze-frames, screen flashes, and pronounced camera shakes for immediate player awareness.
--   **Scoring Visibility:** Milestones are accompanied by floating score text, providing immediate visual confirmation of player achievements.
+### 🧠 Game Feel
+- **Tactile Car Physics**: Smooth lateral movement with slight tilt and suspension bounce during lane changes.
+- **Event Clarity**: Every interaction—near miss, collision, milestone—is communicated through layered audiovisual cues.
+- **Performance Focus**: Optimized rendering and object pooling ensure stable 60 FPS even on mid-tier devices.
 
-### UI & UX Improvements
--   **Dynamic HUD:** The Head-Up Display elements exhibit subtle motion dynamically linked to game speed, enhancing immersion.
--   **Refined Game Over Screen:** Features a smooth fade-in transition, clear display of the final score, and a distinct "New High Score" highlight. The restart mechanism includes intuitive button feedback.
+### 🖥️ UI/UX Design
+- **Dynamic HUD**: Score and speed indicators subtly animate in response to gameplay intensity.
+- **Polished Game Over Screen**:  
+  - Smooth fade-in transition  
+  - Clear display of final score and high score status  
+  - Visual highlight for “NEW HIGH SCORE!”  
+  - Intuitive restart flow with hover/click feedback
 
-## 🛠️ Technologies Under the Hood
--   **Three.js**: Utilized for rendering the 3D game environment, including roads, car models, and obstacles, with a focus on optimized visual effects.
--   **TypeScript**: Employed for developing a robust, maintainable, and type-safe codebase.
--   **Vite**: Integrated for a streamlined development workflow and efficient production builds.
--   **HTML/CSS**: Provides the structural foundation for the web application and styles for all user interface components.
--   **OpenCode**: Utilized as an AI assistant for initial project generation and iterative enhancements.
+---
+
+## 🛠️ Technologies Used
+
+| Layer               | Technology        |
+|---------------------|-------------------|
+| 3D Rendering        | Three.js          |
+| Language            | TypeScript        |
+| Build Tool          | Vite              |
+| Styling             | CSS (minimal)     |
+| Persistence         | `localStorage` (for high scores) |
+| Development Aid     | OpenCode (AI-assisted ideation & iteration) |
+
+---
 
 ## ⚙️ Setup and Installation
 
@@ -87,13 +121,8 @@ Compiles the application into optimized static assets located in the `dist/` dir
 
 ---
 
-## 🎮 Try It Live
-
-Play **Neon Drift – Infinite Run** right in your browser:
-
-👉 [**Launch Game**](https://abir994.github.io/Neon-Drift-Infinite-Run/)
-
----
 ## 🧑‍💻 Developed By
 
 - [ABiR994](https://github.com/ABiR994) with OpenCode
+
+---
