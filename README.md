@@ -1,6 +1,6 @@
 <div align="center">
 
-# Neon Drift - Infinite Run
+# 🏁 Neon Drift - Infinite Run
 
 **A fast-paced, visually immersive infinite runner game built with Three.js and TypeScript,  
 set in a neon-drenched cyberpunk cityscape.**
@@ -23,7 +23,7 @@ Designed to deliver thrilling gameplay, responsive controls, and cinematic visua
 
 <br>
 
-## Overview
+## 🌆 Overview
 
 **Neon Drift - Infinite Run** is an endless 3D runner where players dodge obstacles on a procedurally generated highway while racing through a glowing cyberpunk metropolis. Built with performance and player experience in mind, the game combines smooth lane-shifting mechanics, escalating speed, and rich visual storytelling to create a compelling, replayable challenge.
 
@@ -35,13 +35,13 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 <br>
 
-## Core Features
+## ⚡ Core Features
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### Gameplay
+### 🎮 Gameplay
 
 - **Dynamic Lane Shifting**  
   Instantly switch between three lanes using intuitive keyboard controls
@@ -64,7 +64,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 </td>
 <td width="50%" valign="top">
 
-### Visual & Sensory Design
+### 🎨 Visual & Sensory Design
 
 - **Bloom Post-Processing**  
   UnrealBloomPass creates authentic neon glow on all emissive materials
@@ -90,7 +90,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 <br>
 
-### Feedback & Polish
+### 💥 Feedback & Polish
 
 | Feature | Description |
 |:--------|:------------|
@@ -105,7 +105,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 <br>
 
-## How to Play
+## 🕹 How to Play
 
 <div align="center">
 
@@ -128,13 +128,13 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 <br>
 
-## Visual & Gameplay Enhancements
+## 🖥️ Visual & Gameplay Enhancements
 
 <table>
 <tr>
 <td width="33%" valign="top">
 
-### Vehicle Design
+### 🚗 Vehicle Design
 
 - **Futuristic Sports Car**  
   Low-profile chassis with sleek, beveled panels
@@ -154,7 +154,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 </td>
 <td width="33%" valign="top">
 
-### Obstacle Design
+### 🚧 Obstacle Design
 
 - **Energy Barriers**  
   Hexagonal pillars with glowing cores
@@ -171,7 +171,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 </td>
 <td width="33%" valign="top">
 
-### UI/UX Design
+### 🎯 UI/UX Design
 
 - **Dynamic HUD**  
   Score and speed animate with gameplay intensity
@@ -192,7 +192,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 <br>
 
-## Technologies Used
+## 🛠 Technologies Used
 
 <div align="center">
 
@@ -214,7 +214,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 <br>
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 src/
@@ -255,7 +255,7 @@ src/
 
 <br>
 
-## Setup and Installation
+## ▶️ Setup and Installation
 
 ### Prerequisites
 
@@ -306,7 +306,7 @@ Compiles the application into optimized static assets in the `dist/` directory, 
 
 <br>
 
-## Performance Optimizations
+## 🚀 Performance Optimizations
 
 | Optimization | Description |
 |:-------------|:------------|
@@ -323,7 +323,7 @@ Compiles the application into optimized static assets in the `dist/` directory, 
 
 <div align="center">
 
-## Developed By
+## 👤 Developed By
 
 **[ABiR994](https://github.com/ABiR994)** with OpenCode
 
