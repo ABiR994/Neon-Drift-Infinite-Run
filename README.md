@@ -1,4 +1,4 @@
-# Neon Drift - Infinite Run
+# 🏁 Neon Drift - Infinite Run
 
 A fast-paced, visually immersive infinite runner game built with **Three.js** and **TypeScript**, set in a neon-drenched cyberpunk cityscape. Designed to deliver thrilling gameplay, responsive controls, and cinematic visual feedback—all running smoothly in your browser.
 
@@ -9,105 +9,95 @@ A fast-paced, visually immersive infinite runner game built with **Three.js** an
 
 ---
 
-## Overview
+## 🌆 Overview
 
 **Neon Drift - Infinite Run** is an endless 3D runner where players dodge obstacles on a procedurally generated highway while racing through a glowing cyberpunk metropolis. Built with performance and player experience in mind, the game combines smooth lane-shifting mechanics, escalating speed, and rich visual storytelling to create a compelling, replayable challenge.
 
-Every element—from camera motion to neon glows—is tuned to amplify the sensation of speed and urgency, making each run feel intense and rewarding.
+Every element—from camera motion to neon glows—is tuned to amplify the sensation of speed and urgency, making each run feel intense, fluid, and deeply satisfying.
 
 ---
 
-## Core Features
+## ⚡ Core Features
 
-- **Dynamic Lane Shifting**: Instantly switch between three lanes using intuitive keyboard controls.
-- **Procedural World Generation**: Endless road segments and obstacle patterns ensure no two runs are alike.
-- **Responsive Input System**: Tight, lag-free controls for precise maneuvering at high speeds.
-- **Advanced Cyberpunk Visuals**:
-  - Bloom post-processing for neon glow effects
-  - Animated starfield background with colorful particles
-  - CRT scanline overlay for retro aesthetic
-  - Speed-reactive camera tilt, FOV, and shake
-  - Radial speed lines at high velocity
-  - Animated atmospheric fog that thickens with speed
-- **Real-Time Scoring**: Track your progress with a dynamic HUD that updates instantly.
-- **Robust Game States**: Seamless transitions between start screen, gameplay, game over, and restart.
-- **Enhanced Feedback System**:
-  - Near-miss: UI shake effect + micro camera shake
-  - Collision: freeze-frame, bright flash, strong shake, and clear "GAME OVER" state
-- **High Score Tracking**: Personal bests are saved locally and celebrated with visual flair.
-- **Object Pooling**: Optimized obstacle spawning reduces garbage collection for smooth performance.
+### 🎮 Gameplay
+- **Dynamic Lane Shifting**: Instantly switch between three lanes using intuitive keyboard controls  
+- **Procedural World Generation**: Endless road segments and obstacle patterns ensure no two runs are alike  
+- **Responsive Input System**: Tight, lag-free controls for precise maneuvering at high speeds  
+- **Real-Time Scoring**: Track your progress with a dynamic HUD that updates instantly  
+- **High Score Tracking**: Personal bests saved locally and celebrated with visual flair  
+- **Robust Game States**: Seamless transitions between start screen, gameplay, game over, and restart  
+
+### 🎨 Visual & Sensory Design
+- **Bloom Post-Processing**: UnrealBloomPass creates authentic neon glow on all emissive materials  
+- **Starfield Background**: 500 colorful particles create depth and atmosphere  
+- **CRT Scanline Overlay**: Subtle horizontal lines add retro cyberpunk authenticity  
+- **Speed Lines**: Radial overlay intensifies as velocity increases  
+- **Atmospheric Fog**: Layered, speed-reactive fog enhances immersion and spatial awareness  
+- **Emissive Materials**: All key elements pulse with synchronized neon hues  
+
+### 💥 Feedback & Polish
+- **Near-Miss Effects**: UI shake + micro camera shake for tension  
+- **Collision Impact**: Freeze-frame, bright flash, strong shake, and clear "GAME OVER" state  
+- **Object Pooling**: Optimized obstacle spawning reduces garbage collection for smooth 60 FPS  
+- **Tactile Car Physics**: Smooth lateral movement with tilt, suspension bounce, and speed-reactive FOV  
 
 ---
 
-## How to Play
+## 🕹 How to Play
 
 ### Controls
-- **Left Arrow** or **A**: Move car to the left lane
-- **Right Arrow** or **D**: Move car to the right lane
-- **R**: Restart after game over
-- **Space** or **Enter**: Start game from title screen
+| Key               | Action                     |
+|-------------------|----------------------------|
+| ← / **A**         | Move car left              |
+| → / **D**         | Move car right             |
+| **Space** / Enter | Start game (from title)    |
+| **R**             | Restart after game over    |
 
 ### Objective
 Survive as long as possible by dodging obstacles. The game speeds up over time—stay sharp, stay focused, and chase your highest score!
 
 ---
 
-## Visual & Gameplay Enhancements
+## 🖥️ Visual & Gameplay Enhancements
 
-### Visual Polish
-- **Bloom Post-Processing**: UnrealBloomPass creates authentic neon glow on all emissive materials
-- **Starfield Background**: 500 colorful particles create depth and atmosphere
-- **CRT Scanlines**: Subtle horizontal lines add retro cyberpunk authenticity
-- **Speed Lines**: Radial overlay intensifies at high speeds
-- **Emissive Materials**: All key elements glow with pulsing neon hues synchronized to game speed
-- **Atmospheric Depth**: Layered fog enhances immersion and spatial awareness
+### 🚗 Vehicle Design
+- **Futuristic Sports Car**: Low-profile chassis with sleek, beveled panels  
+- **Spinning Wheels**: 4 detailed wheels with chrome rims and rubber tires  
+- **Neon Accents**: Cyan body with purple fenders and glowing trim strips  
+- **Carbon Fiber Details**: Spoiler, side skirts, front splitter, rear diffuser  
+- **Working Lights**: Bright headlights, pink tail lights, dual exhaust glow, and underglow  
 
-### Vehicle Design
-- **Futuristic Sports Car**: Low-profile chassis with sleek, beveled body panels
-- **Spinning Wheels**: 4 detailed wheels with chrome rims and rubber tires that rotate based on speed
-- **Neon Accents**: Cyan body with purple fenders and glowing trim strips
-- **Carbon Fiber Details**: Spoiler, side skirts, front splitter, and rear diffuser
-- **Working Lights**: Bright headlights with spotlights, pink tail lights, and dual exhaust glow
-- **Underglow**: Cyan neon light underneath the car
+### 🚧 Obstacle Design
+- **Energy Barriers**: Hexagonal pillars with glowing cores  
+- **Warning Lights**: Yellow corner beacons and danger stripes  
+- **Pulsing Effects**: Emissive parts accelerate their pulse with speed  
+- **High Contrast**: Hot magenta/orange obstacles pop against cyan car  
 
-### Obstacle Design
-- **Energy Barriers**: Futuristic hazards with hexagonal pillars and glowing energy cores
-- **Warning Lights**: Yellow corner lights and danger stripes for visibility
-- **Pulsing Effects**: All emissive parts pulse faster as speed increases
-- **Color Contrast**: Hot magenta/orange obstacles stand out against cyan car
-
-### Game Feel
-- **Tactile Car Physics**: Smooth lateral movement with tilt and suspension bounce
-- **Event Clarity**: Every interaction is communicated through layered visual cues
-- **Start Screen**: Stylized title screen with controls and "Press to Start" prompt
-- **Performance Focus**: Object pooling and optimized rendering ensure stable 60 FPS
-
-### UI/UX Design
-- **Dynamic HUD**: Score and speed indicators animate in response to gameplay intensity
-- **UI Shake**: Screen shakes on near-misses for tactile feedback
+### 🎯 UI/UX Design
+- **Dynamic HUD**: Score and speed animate with gameplay intensity  
 - **Polished Game Over Screen**:
-  - Smooth fade-in transition
-  - Clear display of final score and high score status
-  - Visual highlight for "NEW HIGH SCORE!"
-  - Intuitive restart flow with hover/click feedback
+  - Smooth fade-in transition  
+  - Final score + high score status  
+  - "NEW HIGH SCORE!" highlight  
+  - Intuitive restart with hover/click feedback  
 
 ---
 
-## Technologies Used
+## 🛠 Technologies Used
 
-| Layer               | Technology        |
-|---------------------|-------------------|
-| 3D Rendering        | Three.js          |
-| Post-Processing     | Three.js EffectComposer + UnrealBloomPass |
-| Animation           | TWEEN.js          |
-| Language            | TypeScript        |
-| Build Tool          | Vite              |
-| Styling             | CSS               |
-| Persistence         | localStorage (for high scores) |
+| Layer               | Technology                          |
+|---------------------|-------------------------------------|
+| 3D Rendering        | Three.js                            |
+| Post-Processing     | EffectComposer + UnrealBloomPass    |
+| Animation           | TWEEN.js                            |
+| Language            | TypeScript                          |
+| Build Tool          | Vite                                |
+| Styling             | CSS (with scanlines & overlays)     |
+| Persistence         | `localStorage` (high scores)        |
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 src/
@@ -137,7 +127,7 @@ src/
 
 ---
 
-## Setup and Installation
+## ▶️ Setup and Installation
 
 ### Prerequisites
 - Node.js (LTS version recommended)
@@ -168,7 +158,7 @@ Compiles the application into optimized static assets in the `dist/` directory, 
 
 ---
 
-## Performance Optimizations
+## 🚀 Performance Optimizations
 
 - **Object Pooling**: Obstacles are reused instead of created/destroyed to reduce GC pressure
 - **Static Vector3 Allocations**: Camera look-at target uses static vector to avoid per-frame allocations
@@ -177,6 +167,8 @@ Compiles the application into optimized static assets in the `dist/` directory, 
 
 ---
 
-## Developed By
+## 👤 Developed By
 
 - [ABiR994](https://github.com/ABiR994) with OpenCode
+
+---
