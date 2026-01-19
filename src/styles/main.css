@@ -4,14 +4,9 @@
 body {
   margin: 0;
   overflow: hidden;
-  font-family: 'Press Start 2P', cursive; /* A pixel-art font for retro-neon feel */
+  font-family: 'Press Start 2P', monospace, cursive; /* A pixel-art font with fallbacks */
   color: #00ffff; /* Neon cyan */
   background-color: #0a0a1a; /* Very dark blue for the cyberpunk night */
-}
-
-/* Fallback for the custom font, if not loaded */
-body {
-  font-family: monospace;
 }
 
 #game-container {
@@ -84,13 +79,13 @@ body {
   font-weight: bold;
   border-radius: 5px;
   cursor: pointer;
-   box_shadow: 0 0 10px #00ff00;
-  transition: background_color 0.3s, box_shadow 0.3s;
+  box-shadow: 0 0 10px #00ff00;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 #game-over-screen button:hover {
-  background_color: #00cc00;
-  box_shadow: 0 0 20px #00ff00;
+  background-color: #00cc00;
+  box-shadow: 0 0 20px #00ff00;
 }
 
 #new-high-score-message {
@@ -121,4 +116,131 @@ body {
 
 .hidden {
   display: none !important;
+}
+
+/* CRT Scanline overlay effect */
+#scanline-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.03),
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* UI shake animation for near-misses */
+@keyframes ui-shake {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-3px) rotate(-0.5deg); }
+  20% { transform: translateX(3px) rotate(0.5deg); }
+  30% { transform: translateX(-3px) rotate(-0.5deg); }
+  40% { transform: translateX(3px) rotate(0.5deg); }
+  50% { transform: translateX(-2px) rotate(-0.3deg); }
+  60% { transform: translateX(2px) rotate(0.3deg); }
+  70% { transform: translateX(-1px) rotate(-0.1deg); }
+  80% { transform: translateX(1px) rotate(0.1deg); }
+  90% { transform: translateX(0); }
+}
+
+.shake {
+  animation: ui-shake 0.3s ease-in-out;
+}
+
+/* Start screen styles */
+#start-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 60px 80px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #00ffff;
+  box-shadow: 0 0 30px #00ffff, 0 0 60px #00ffff, inset 0 0 30px rgba(0, 255, 255, 0.1);
+  border-radius: 10px;
+  text-align: center;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+#start-screen h1 {
+  color: #ff00ff;
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
+  animation: title-glow 2s ease-in-out infinite alternate;
+}
+
+#start-screen h2 {
+  color: #00ffff;
+  font-size: 1.2em;
+  margin-bottom: 40px;
+  text-shadow: 0 0 10px #00ffff;
+}
+
+@keyframes title-glow {
+  from {
+    text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
+  }
+  to {
+    text-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff, 0 0 80px #ff00ff;
+  }
+}
+
+#start-screen .controls {
+  margin-bottom: 40px;
+  font-size: 0.9em;
+  line-height: 2;
+}
+
+#start-screen .controls span {
+  color: #ffff00;
+}
+
+#start-screen .start-prompt {
+  color: #00ff00;
+  font-size: 1.3em;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+#start-screen .high-score-display {
+  margin-top: 30px;
+  color: #ffff00;
+  font-size: 1em;
+  text-shadow: 0 0 10px #ffff00;
+}
+
+/* Speed lines overlay (appears at high speed) */
+#speed-lines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 255, 255, 0.03) 70%,
+    rgba(255, 0, 255, 0.05) 100%
+  );
+  transition: opacity 0.3s ease;
+}
+
+#speed-lines.active {
+  opacity: 1;
 }

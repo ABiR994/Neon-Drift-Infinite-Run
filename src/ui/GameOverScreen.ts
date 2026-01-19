@@ -9,8 +9,12 @@ export class GameOverScreen {
     private newHighScoreMessage: HTMLElement | null;
     private onRestartCallback: () => void;
     private displayedFinalScore: { value: number } = { value: 0 };
-    private scoreTween: TWEEN.Tween<any> | null = null; // Use 'any' for simpler TWEEN.Tween type
+    private scoreTween: TWEEN.Tween<any> | null = null;
     private currentHighScore: number = 0;
+
+    // Store bound event handlers to properly remove them later
+    private handleMouseEnter: () => void;
+    private handleMouseLeave: () => void;
 
     constructor(onRestart: () => void) {
         this.gameOverScreenElement = document.querySelector(UI_SELECTORS.GAME_OVER_SCREEN);
@@ -18,6 +22,10 @@ export class GameOverScreen {
         this.restartButton = document.querySelector(UI_SELECTORS.RESTART_BUTTON) as HTMLButtonElement;
         this.newHighScoreMessage = document.querySelector(UI_SELECTORS.GAME_OVER_NEW_HIGH_SCORE_MESSAGE);
         this.onRestartCallback = onRestart;
+
+        // Create bound event handlers
+        this.handleMouseEnter = () => this.restartButton?.classList.add('hover');
+        this.handleMouseLeave = () => this.restartButton?.classList.remove('hover');
 
         const storedHighScore = localStorage.getItem('neon_drift_high_score');
         if (storedHighScore) {
@@ -34,8 +42,8 @@ export class GameOverScreen {
             console.warn(`GameOverScreen: Restart button element with selector "${UI_SELECTORS.RESTART_BUTTON}" not found.`);
         } else {
             this.restartButton.addEventListener('click', this.onRestartCallback);
-            this.restartButton.addEventListener('mouseenter', () => this.restartButton?.classList.add('hover'));
-            this.restartButton.addEventListener('mouseleave', () => this.restartButton?.classList.remove('hover'));
+            this.restartButton.addEventListener('mouseenter', this.handleMouseEnter);
+            this.restartButton.addEventListener('mouseleave', this.handleMouseLeave);
         }
         if (!this.newHighScoreMessage) {
             console.warn(`GameOverScreen: New high score message element with selector "${UI_SELECTORS.GAME_OVER_NEW_HIGH_SCORE_MESSAGE}" not found.`);
@@ -56,10 +64,7 @@ export class GameOverScreen {
             if (this.scoreTween) {
                 this.scoreTween.stop();
             }
-            if (this.scoreTween) {
-                this.scoreTween.stop();
-            }
-            this.displayedFinalScore.value = finalScore; // Directly set the value
+            this.displayedFinalScore.value = finalScore;
             if (this.finalScoreElement) {
                 this.finalScoreElement.textContent = Math.floor(this.displayedFinalScore.value).toString();
             }
@@ -90,8 +95,8 @@ export class GameOverScreen {
     public dispose(): void {
         if (this.restartButton) {
             this.restartButton.removeEventListener('click', this.onRestartCallback);
-            this.restartButton.removeEventListener('mouseenter', () => this.restartButton?.classList.add('hover'));
-            this.restartButton.removeEventListener('mouseleave', () => this.restartButton?.classList.remove('hover'));
+            this.restartButton.removeEventListener('mouseenter', this.handleMouseEnter);
+            this.restartButton.removeEventListener('mouseleave', this.handleMouseLeave);
         }
         if (this.finalScoreElement) {
             this.finalScoreElement.textContent = '0';

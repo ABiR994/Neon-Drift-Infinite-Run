@@ -1,5 +1,8 @@
 // src/core/SceneManager.ts
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import {
     CAMERA_FAR,
     CAMERA_FOV,
@@ -13,7 +16,6 @@ import {
     ROAD_LENGTH,
     ROAD_WIDTH,
     CAR_INITIAL_Z,
-    GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
     FOG_DENSITY_INITIAL,
     FOG_DENSITY_MAX_SPEED_MULTIPLIER,
@@ -23,12 +25,23 @@ import {
     CAMERA_SHAKE_SPEED_THRESHOLD,
     CAMERA_SHAKE_FREQUENCY
 } from '../utils/constants';
+import { getNormalizedSpeed } from '../utils/helpers';
 
-import * as TWEEN from '@tweenjs/tween.js'; // Import TWEEN.js
+import * as TWEEN from '@tweenjs/tween.js';
 
 // This is a temporary bypass for a persistent LSP error.
 // The CAMERA_NEAR constant should ideally be imported from constants.ts.
 const CAMERA_NEAR_VALUE = 0.1;
+
+// Bloom configuration constants
+const BLOOM_STRENGTH = 1.2;
+const BLOOM_RADIUS = 0.5;
+const BLOOM_THRESHOLD = 0.3;
+
+// Starfield configuration constants
+const STARFIELD_COUNT = 500;
+const STARFIELD_SPREAD = 400;
+const STARFIELD_DEPTH = 600;
 
 export class SceneManager {
     private scene: THREE.Scene;
@@ -42,6 +55,19 @@ export class SceneManager {
     private originalDirectionalLightIntensity: number | null = null; // Store original directional light intensity
     private shakeTimer: number = 0; // Timer for camera shake duration
     private currentShakeIntensity: number = 0; // Current intensity for temporary shakes
+
+    // Post-processing
+    private composer: EffectComposer;
+    private bloomPass: UnrealBloomPass;
+
+    // Starfield
+    private starfield: THREE.Points | null = null;
+
+    // Store bound event handler for proper removal
+    private boundOnWindowResize: () => void;
+
+    // Static reusable vector for lookAt to avoid creating new Vector3 each time
+    private static readonly LOOK_AT_TARGET = new THREE.Vector3(0, CAMERA_LOOK_AT_Y, CAR_INITIAL_Z);
 
     constructor(containerId: string) {
         // Find the container element where the game will be rendered
@@ -73,7 +99,7 @@ export class SceneManager {
         this.camera.position.set(0, CAMERA_INITIAL_POS_Y, CAMERA_INITIAL_POS_Z);
         this.initialCameraPosition = this.camera.position.clone(); // Store initial position for shake
         // Make the camera look towards the car's initial position on the road
-        this.camera.lookAt(new THREE.Vector3(0, CAMERA_LOOK_AT_Y, CAR_INITIAL_Z)); // Using imported constant
+        this.camera.lookAt(SceneManager.LOOK_AT_TARGET);
 
         // Initialize renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -83,11 +109,83 @@ export class SceneManager {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Use PCFSoftShadowMap for softer shadow edges
         this.container.appendChild(this.renderer.domElement);
 
+        // Setup post-processing with bloom
+        this.composer = new EffectComposer(this.renderer);
+        const renderPass = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(renderPass);
+
+        this.bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(this.container.clientWidth, this.container.clientHeight),
+            BLOOM_STRENGTH,
+            BLOOM_RADIUS,
+            BLOOM_THRESHOLD
+        );
+        this.composer.addPass(this.bloomPass);
+
         // Setup lighting for the scene
         this.setupLighting();
 
-        // Register event listener for window resizing
-        window.addEventListener('resize', this.onWindowResize.bind(this));
+        // Setup starfield background
+        this.setupStarfield();
+
+        // Create bound event handler and register event listener for window resizing
+        this.boundOnWindowResize = this.onWindowResize.bind(this);
+        window.addEventListener('resize', this.boundOnWindowResize);
+    }
+
+    /**
+     * Creates a starfield background for the cyberpunk atmosphere.
+     */
+    private setupStarfield(): void {
+        const starGeometry = new THREE.BufferGeometry();
+        const starPositions = new Float32Array(STARFIELD_COUNT * 3);
+        const starColors = new Float32Array(STARFIELD_COUNT * 3);
+
+        for (let i = 0; i < STARFIELD_COUNT; i++) {
+            const i3 = i * 3;
+            // Spread stars in a large box around the scene
+            starPositions[i3] = (Math.random() - 0.5) * STARFIELD_SPREAD;
+            starPositions[i3 + 1] = Math.random() * 50 + 10; // Above the road
+            starPositions[i3 + 2] = (Math.random() - 0.5) * STARFIELD_DEPTH - CAR_INITIAL_Z;
+
+            // Random neon colors for stars (cyan, magenta, white, purple)
+            const colorChoice = Math.random();
+            if (colorChoice < 0.3) {
+                // Cyan
+                starColors[i3] = 0;
+                starColors[i3 + 1] = 1;
+                starColors[i3 + 2] = 1;
+            } else if (colorChoice < 0.5) {
+                // Magenta
+                starColors[i3] = 1;
+                starColors[i3 + 1] = 0;
+                starColors[i3 + 2] = 1;
+            } else if (colorChoice < 0.7) {
+                // Purple
+                starColors[i3] = 0.5;
+                starColors[i3 + 1] = 0;
+                starColors[i3 + 2] = 1;
+            } else {
+                // White
+                starColors[i3] = 1;
+                starColors[i3 + 1] = 1;
+                starColors[i3 + 2] = 1;
+            }
+        }
+
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+        const starMaterial = new THREE.PointsMaterial({
+            size: 0.5,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        this.starfield = new THREE.Points(starGeometry, starMaterial);
+        this.scene.add(this.starfield);
     }
 
     private setupLighting(): void {
@@ -127,6 +225,9 @@ export class SceneManager {
         this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera.updateProjectionMatrix(); // Update camera's projection matrix after aspect change
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+        // Update composer and bloom pass for new size
+        this.composer.setSize(this.container.clientWidth, this.container.clientHeight);
+        this.bloomPass.resolution.set(this.container.clientWidth, this.container.clientHeight);
     }
 
     public getScene(): THREE.Scene {
@@ -142,10 +243,12 @@ export class SceneManager {
     }
 
     /**
-     * Renders the scene from the camera's perspective. This is called in the main game loop.
+     * Renders the scene from the camera's perspective using post-processing.
+     * This is called in the main game loop.
      */
     public render(): void {
-        this.renderer.render(this.scene, this.camera);
+        // Use composer for bloom post-processing
+        this.composer.render();
     }
 
     /**
@@ -153,7 +256,18 @@ export class SceneManager {
      * crucial for clean restarts.
      */
     public dispose(): void {
-        window.removeEventListener('resize', this.onWindowResize.bind(this));
+        window.removeEventListener('resize', this.boundOnWindowResize);
+        
+        // Dispose starfield
+        if (this.starfield) {
+            this.starfield.geometry.dispose();
+            (this.starfield.material as THREE.Material).dispose();
+            this.scene.remove(this.starfield);
+        }
+        
+        // Dispose composer
+        this.composer.dispose();
+        
         this.renderer.dispose();
         // Remove the renderer's canvas from the DOM
         if (this.renderer.domElement.parentNode) {
@@ -244,11 +358,8 @@ export class SceneManager {
      * @param deltaTime The time elapsed since the last frame.
      */
      public updateEnvironment(speed: number, time: number, deltaTime: number): void {
-        // TWEEN.update(time * 1000); // Removed: Now handled in Game.ts
-
         // Normalize speed to a 0-1 range based on initial and max speed
-        const normalizedSpeed = (speed - GAME_SPEED_INITIAL) / (GAME_SPEED_MAX - GAME_SPEED_INITIAL);
-        const t = Math.max(0, Math.min(1, normalizedSpeed)); // Clamp t between 0 and 1
+        const t = getNormalizedSpeed(speed);
 
         // 1. Update Fog Density (exponential fog)
         // Lerp from initial density to (initial * max_speed_multiplier)

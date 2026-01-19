@@ -9,8 +9,20 @@
   </head>
   <body>
     <div id="game-container"></div>
+    <div id="scanline-overlay"></div>
+    <div id="speed-lines"></div>
     <div id="ui-container">
-      <div id="hud">
+      <div id="start-screen">
+        <h1>NEON DRIFT</h1>
+        <h2>INFINITE RUN</h2>
+        <div class="controls">
+          <p><span>LEFT / A</span> - Move Left</p>
+          <p><span>RIGHT / D</span> - Move Right</p>
+        </div>
+        <p class="start-prompt">PRESS ANY KEY TO START</p>
+        <p class="high-score-display" id="start-high-score"></p>
+      </div>
+      <div id="hud" class="hidden">
         <p>SCORE: <span id="score-value">0</span></p>
         <p>SPEED: <span id="speed-value">0</span> MPH</p>
       </div>

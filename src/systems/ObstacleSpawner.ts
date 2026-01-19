@@ -1,6 +1,7 @@
 // src/systems/ObstacleSpawner.ts
 import * as THREE from 'three';
 import { Obstacle } from '../entities/Obstacle';
+import { ObstaclePool } from './ObstaclePool';
 import {
     ROAD_LENGTH,
     LANE_COUNT,
@@ -8,19 +9,19 @@ import {
     OBSTACLE_SPAWN_INTERVAL_MIN,
     OBSTACLE_SPAWN_INTERVAL_DECREASE_RATE,
     CAR_INITIAL_Z,
-    OBSTACLE_PATTERN_CHANCE_DOUBLE // Import new constant
+    OBSTACLE_PATTERN_CHANCE_DOUBLE
 } from '../utils/constants';
-import { getRandomInt } from '../utils/helpers'; // Removed clamp
+import { getRandomInt } from '../utils/helpers';
 
 export class ObstacleSpawner {
-    private scene: THREE.Scene;
     private obstacles: Obstacle[] = [];
+    private pool: ObstaclePool;
     private timeSinceLastSpawn: number = 0;
     private currentSpawnInterval: number;
     private totalGameTime: number = 0;
 
     constructor(scene: THREE.Scene) {
-        this.scene = scene;
+        this.pool = new ObstaclePool(scene);
         this.currentSpawnInterval = OBSTACLE_SPAWN_INTERVAL_INITIAL;
     }
 
@@ -46,14 +47,14 @@ export class ObstacleSpawner {
             this.timeSinceLastSpawn = 0;
         }
 
-        // Update existing obstacles and remove those out of view
+        // Update existing obstacles and release those out of view back to pool
         for (let i = this.obstacles.length - 1; i >= 0; i--) {
             const obstacle = this.obstacles[i];
             obstacle.update(deltaTime, gameSpeed);
-            obstacle.updateVisuals(gameSpeed, currentTime / 1000); // Update obstacle visuals
+            obstacle.updateVisuals(gameSpeed, currentTime / 1000);
 
             if (obstacle.isOutOfView()) {
-                obstacle.dispose(this.scene);
+                this.pool.release(obstacle);
                 this.obstacles.splice(i, 1);
             }
         }
@@ -61,7 +62,7 @@ export class ObstacleSpawner {
 
     /**
      * Spawns a new obstacle in a random lane ahead of the player.
-     * The Z position is calculated to be sufficiently far ahead of the camera.
+     * Uses object pooling to reduce garbage collection.
      */
     private spawnObstacle(): void {
         const spawnZ = CAR_INITIAL_Z - ROAD_LENGTH - getRandomInt(ROAD_LENGTH / 4, ROAD_LENGTH / 2);
@@ -71,8 +72,8 @@ export class ObstacleSpawner {
 
         if (patternType === 'SINGLE') {
             const randomLane = getRandomInt(0, LANE_COUNT - 1);
-            const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
-            this.obstacles.push(newObstacle);
+            const obstacle = this.pool.acquire(randomLane, spawnZ);
+            this.obstacles.push(obstacle);
         } else if (patternType === 'DOUBLE') {
             // Ensure there are at least 2 lanes for a double obstacle
             if (LANE_COUNT >= 2) {
@@ -84,21 +85,13 @@ export class ObstacleSpawner {
                     lane2 = getRandomInt(0, LANE_COUNT - 1);
                 }
 
-                // Ensure there's at least one empty lane if LANE_COUNT > 2
-                // Or simply spawn in two different lanes if LANE_COUNT is 2
-                if (LANE_COUNT > 2) {
-                    // To ensure at least one open lane, we select two lanes out of N
-                    // The above random selection already ensures two distinct lanes.
-                    // No further logic needed here as we only care that they are distinct.
-                }
-
-                this.obstacles.push(new Obstacle(this.scene, lane1, spawnZ));
-                this.obstacles.push(new Obstacle(this.scene, lane2, spawnZ));
+                this.obstacles.push(this.pool.acquire(lane1, spawnZ));
+                this.obstacles.push(this.pool.acquire(lane2, spawnZ));
             } else {
                 // Fallback to single if not enough lanes for double
                 const randomLane = getRandomInt(0, LANE_COUNT - 1);
-                const newObstacle = new Obstacle(this.scene, randomLane, spawnZ);
-                this.obstacles.push(newObstacle);
+                const obstacle = this.pool.acquire(randomLane, spawnZ);
+                this.obstacles.push(obstacle);
             }
         }
     }
@@ -111,10 +104,13 @@ export class ObstacleSpawner {
     }
 
     /**
-     * Resets the spawner's state and clears all active obstacles from the scene.
+     * Resets the spawner's state and releases all active obstacles back to the pool.
      */
     public reset(): void {
-        this.obstacles.forEach(obstacle => obstacle.dispose(this.scene));
+        // Release all active obstacles back to the pool
+        for (const obstacle of this.obstacles) {
+            this.pool.release(obstacle);
+        }
         this.obstacles = [];
         this.timeSinceLastSpawn = 0;
         this.currentSpawnInterval = OBSTACLE_SPAWN_INTERVAL_INITIAL;
@@ -122,10 +118,15 @@ export class ObstacleSpawner {
     }
 
     /**
-     * Disposes of all resources managed by the spawner.
-     * Currently, this reuses the reset logic.
+     * Disposes of all resources managed by the spawner including the pool.
      */
     public dispose(): void {
-        this.reset();
+        // Release active obstacles to pool first
+        for (const obstacle of this.obstacles) {
+            this.pool.release(obstacle);
+        }
+        this.obstacles = [];
+        // Now dispose the pool entirely
+        this.pool.dispose();
     }
 }

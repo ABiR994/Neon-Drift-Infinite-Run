@@ -19,6 +19,7 @@ import {
     COLLISION_FLASH_DURATION,
     COLLISION_FREEZE_DURATION
 } from '../utils/constants';
+import { getNormalizedSpeed } from '../utils/helpers';
 
 import * as TWEEN from '@tweenjs/tween.js';
 
@@ -41,6 +42,10 @@ export class Game {
     private currentSpeed: number = GAME_SPEED_INITIAL;
     private gameState: GameState = 'playing';
 
+    // UI elements for visual effects
+    private uiContainer: HTMLElement | null = null;
+    private speedLinesElement: HTMLElement | null = null;
+
     constructor(sceneManager: SceneManager) {
         this.sceneManager = sceneManager;
         this.input = Input.getInstance();
@@ -52,6 +57,10 @@ export class Game {
         this.gameOverScreen = new GameOverScreen(this.restartGame.bind(this));
         this.floatingTextManager = new FloatingTextManager();
 
+        // Get UI elements for visual effects
+        this.uiContainer = document.getElementById('ui-container');
+        this.speedLinesElement = document.getElementById('speed-lines');
+
         this.collisionSystem = new CollisionSystem(
             this.car,
             this.obstacleSpawner.getObstacles(),
@@ -61,7 +70,8 @@ export class Game {
 
         this.scoreSystem.setOnMilestoneReachedCallback(this.handleMilestoneReached.bind(this));
 
-        this.init();
+        // Don't call init() here - wait for start screen interaction
+        // this.init() will be called from main.ts when the player starts
     }
 
     public init(): void {
@@ -115,7 +125,7 @@ export class Game {
             this.car.moveRight();
         }
 
-        this.car.update(deltaTime, currentTime / 1000);
+        this.car.update(deltaTime, currentTime / 1000, this.currentSpeed);
         this.road.update(deltaTime, this.currentSpeed, currentTime / 1000);
         this.obstacleSpawner.update(deltaTime, this.currentSpeed, currentTime);
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
@@ -127,9 +137,27 @@ export class Game {
         this.hud.updateScore(this.scoreSystem.getScore());
         this.hud.update(this.currentSpeed);
 
+        // Update speed lines visibility based on speed
+        this.updateSpeedLines();
+
         this.floatingTextManager.update(currentTime);
 
         this.input.clearJustPressedKeys();
+    }
+
+    /**
+     * Updates the speed lines overlay visibility based on current speed.
+     */
+    private updateSpeedLines(): void {
+        if (this.speedLinesElement) {
+            const t = getNormalizedSpeed(this.currentSpeed);
+            if (t > 0.5) {
+                this.speedLinesElement.classList.add('active');
+                this.speedLinesElement.style.opacity = String((t - 0.5) * 2);
+            } else {
+                this.speedLinesElement.classList.remove('active');
+            }
+        }
     }
 
     private render(): void {
@@ -165,6 +193,14 @@ export class Game {
     private handleNearMiss(): void {
         this.sceneManager.triggerSmallShake(NEAR_MISS_SHAKE_INTENSITY);
         this.sceneManager.triggerLightFlash(NEAR_MISS_FLASH_DURATION);
+        
+        // Trigger UI shake effect
+        if (this.uiContainer) {
+            this.uiContainer.classList.add('shake');
+            setTimeout(() => {
+                this.uiContainer?.classList.remove('shake');
+            }, 300);
+        }
     }
 
     private handleMilestoneReached(milestoneScore: number): void {

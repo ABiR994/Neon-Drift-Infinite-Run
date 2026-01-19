@@ -1,5 +1,6 @@
 // src/ui/HUD.ts
-import { UI_SELECTORS, GAME_SPEED_INITIAL, GAME_SPEED_MAX,     HUD_MAX_BLUR, HUD_MAX_MOTION_OFFSET /*, HUD_MOTION_SMOOTHING*/ } from '../utils/constants';
+import { UI_SELECTORS, HUD_MAX_BLUR, HUD_MAX_MOTION_OFFSET } from '../utils/constants';
+import { getNormalizedSpeed } from '../utils/helpers';
 import * as TWEEN from '@tweenjs/tween.js';
 
 export class HUD {
@@ -53,8 +54,7 @@ export class HUD {
 
         // Apply HUD motion and blur based on speed
         if (this.hudElement) {
-            const normalizedSpeed = (speed - GAME_SPEED_INITIAL) / (GAME_SPEED_MAX - GAME_SPEED_INITIAL);
-            const t = Math.max(0, Math.min(1, normalizedSpeed)); // Clamp between 0 and 1
+            const t = getNormalizedSpeed(speed);
 
             // Subtle motion (e.g., slight vertical shift)
             const motionOffset = t * HUD_MAX_MOTION_OFFSET;
@@ -77,7 +77,6 @@ export class HUD {
         // Directly reset score display
         if (this.scoreElement) {
             this.scoreElement.textContent = '0';
-            console.log('HUD.reset() - scoreElement.textContent set to:', this.scoreElement.textContent); // DEBUG
         }
         this.displayedSpeed.value = 0;
         if (this.speedElement) {

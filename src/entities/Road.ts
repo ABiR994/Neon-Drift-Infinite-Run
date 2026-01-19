@@ -9,8 +9,6 @@ import {
     LANE_COUNT,
     LANE_WIDTH,
     CAR_INITIAL_Z,
-    GAME_SPEED_INITIAL, // For speed normalization
-    GAME_SPEED_MAX,     // For speed normalization
     ROAD_LINE_EMISSIVE_INTENSITY_MIN,
     ROAD_LINE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER,
     ROAD_EDGE_EMISSIVE_INTENSITY_MIN,
@@ -19,6 +17,7 @@ import {
     ROAD_PULSE_SPEED,
     ROAD_PULSE_AMPLITUDE
 } from '../utils/constants';
+import { getNormalizedSpeed } from '../utils/helpers';
 
 export class Road {
     private scene: THREE.Scene;
@@ -187,8 +186,7 @@ export class Road {
         }
 
         // Update emissive intensity of lane and edge lines
-        const normalizedSpeed = (speed - GAME_SPEED_INITIAL) / (GAME_SPEED_MAX - GAME_SPEED_INITIAL);
-        const t = Math.max(0, Math.min(1, normalizedSpeed)); // Clamp t between 0 and 1
+        const t = getNormalizedSpeed(speed);
 
         // Lane lines pulsation
         const baseLaneIntensity = ROAD_LINE_EMISSIVE_INTENSITY_MIN * (1 + t * (ROAD_LINE_EMISSIVE_INTENSITY_MAX_SPEED_MULTIPLIER - 1));
