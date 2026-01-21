@@ -277,18 +277,17 @@ Compiles the application into optimized static assets in the `dist/` directory, 
 
 ---
 
-<div align="center">
-
-## 👤 Developed By
-
-**[ABiR994](https://github.com/ABiR994)** with OpenCode
-
-</div>
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+## 👤 Developed By
+**[ABiR994](https://github.com/ABiR994)** with OpenCode
+
+</div>
 
 ---
