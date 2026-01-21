@@ -21,19 +21,13 @@ Designed to deliver thrilling gameplay, responsive controls, and cinematic visua
 
 ---
 
-<br>
-
 ## 🌆 Overview
 
 **Neon Drift - Infinite Run** is an endless 3D runner where players dodge obstacles on a procedurally generated highway while racing through a glowing cyberpunk metropolis. Built with performance and player experience in mind, the game combines smooth lane-shifting mechanics, escalating speed, and rich visual storytelling to create a compelling, replayable challenge.
 
 Every element—from camera motion to neon glows—is tuned to amplify the sensation of speed and urgency, making each run feel intense, fluid, and deeply satisfying.
 
-<br>
-
 ---
-
-<br>
 
 ## ⚡ Core Features
 
@@ -88,8 +82,6 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 </tr>
 </table>
 
-<br>
-
 ### 💥 Feedback & Polish
 
 | Feature | Description |
@@ -99,11 +91,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 | **Object Pooling** | Optimized obstacle spawning reduces garbage collection for smooth 60 FPS |
 | **Tactile Car Physics** | Smooth lateral movement with tilt, suspension bounce, and speed-reactive FOV |
 
-<br>
-
 ---
-
-<br>
 
 ## 🕹 How to Play
 
@@ -118,15 +106,9 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 </div>
 
-<br>
-
 > **Objective:** Survive as long as possible by dodging obstacles. The game speeds up over time—stay sharp, stay focused, and chase your highest score!
 
-<br>
-
 ---
-
-<br>
 
 ## 🖥️ Visual & Gameplay Enhancements
 
@@ -186,11 +168,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 </tr>
 </table>
 
-<br>
-
 ---
-
-<br>
 
 ## 🛠 Technologies Used
 
@@ -208,11 +186,7 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 </div>
 
-<br>
-
 ---
-
-<br>
 
 ## 📂 Project Structure
 
@@ -249,11 +223,7 @@ src/
 └── main.ts                  # Entry point with start screen logic
 ```
 
-<br>
-
 ---
-
-<br>
 
 ## ▶️ Setup and Installation
 
@@ -261,8 +231,6 @@ src/
 
 - Node.js (LTS version recommended)
 - npm or Yarn
-
-<br>
 
 ### Installation
 
@@ -279,8 +247,6 @@ cd Neon-Drift-Infinite-Run
 npm install
 ```
 
-<br>
-
 ### Running the Development Server
 
 ```bash
@@ -290,8 +256,6 @@ npm run dev
 Launches the development server at `http://localhost:5173/Neon-Drift-Infinite-Run/`.  
 Features hot-reloading for immediate feedback during development.
 
-<br>
-
 ### Building for Production
 
 ```bash
@@ -300,11 +264,7 @@ npm run build
 
 Compiles the application into optimized static assets in the `dist/` directory, ready for deployment.
 
-<br>
-
 ---
-
-<br>
 
 ## 🚀 Performance Optimizations
 
@@ -315,11 +275,7 @@ Compiles the application into optimized static assets in the `dist/` directory, 
 | **Efficient Collider Updates** | Manual bounding box calculation for Group meshes |
 | **Shared Utility Functions** | Lane position and speed normalization helpers reduce code duplication |
 
-<br>
-
 ---
-
-<br>
 
 <div align="center">
 
@@ -327,14 +283,12 @@ Compiles the application into optimized static assets in the `dist/` directory, 
 
 **[ABiR994](https://github.com/ABiR994)** with OpenCode
 
-<br>
+</div>
 
 ---
-
-<br>
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-</div>
+---
