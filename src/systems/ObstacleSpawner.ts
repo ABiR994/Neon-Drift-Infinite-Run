@@ -21,7 +21,7 @@ export class ObstacleSpawner {
     private totalGameTime: number = 0;
     private lastSpawnLanes: number[] = [];
     private lastSpawnZ: number = 0;
-    private readonly SAFE_Z_DISTANCE: number = 25; // Minimum Z distance to consider obstacles as a "cluster"
+    private readonly SAFE_Z_DISTANCE: number = 45; // Minimum Z distance to ensure a continuous path
 
     constructor(scene: THREE.Scene) {
         this.pool = new ObstaclePool(scene);
@@ -73,15 +73,18 @@ export class ObstacleSpawner {
         // Determine which lanes are "fair" to spawn in
         let availableLanes = Array.from({ length: LANE_COUNT }, (_, i) => i);
         
-        // If this spawn is too close to the last one, don't block the lane that was left open
+        // If this spawn is too close to the last one, ensure at least one path stays open
         if (Math.abs(spawnZ - this.lastSpawnZ) < this.SAFE_Z_DISTANCE && this.lastSpawnLanes.length > 0) {
             // Find lanes that were NOT blocked in the last spawn
             const previouslyOpenLanes = availableLanes.filter(lane => !this.lastSpawnLanes.includes(lane));
             
-            // If we have limited open lanes, make sure we don't block them all now
-            if (previouslyOpenLanes.length === 1) {
-                // The single open lane must stay open if we are too close
-                availableLanes = availableLanes.filter(lane => lane !== previouslyOpenLanes[0]);
+            if (previouslyOpenLanes.length > 0) {
+                // Pick one lane that was open before and FORCE it to stay open now
+                // This creates a continuous "safe" path through the cluster
+                const safeLaneIndex = getRandomInt(0, previouslyOpenLanes.length - 1);
+                const safeLane = previouslyOpenLanes[safeLaneIndex];
+                
+                availableLanes = availableLanes.filter(lane => lane !== safeLane);
             }
         }
 
