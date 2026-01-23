@@ -1,15 +1,20 @@
 // src/systems/CollisionSystem.ts
 import { Car } from '../entities/Car';
-import { Obstacle } from '../entities/Obstacle';
+import * as THREE from 'three';
 import { NEAR_MISS_DISTANCE, CAR_WIDTH, CAR_DEPTH, OBSTACLE_WIDTH, OBSTACLE_DEPTH } from '../utils/constants';
+
+interface Collidable {
+    collider: THREE.Box3;
+    mesh: THREE.Group;
+}
 
 export class CollisionSystem {
     private car: Car;
-    private obstacles: Obstacle[];
-    private onCollisionCallback: (obstacle: Obstacle) => void; // Updated to pass obstacle
-    private onNearMissCallback: () => void; // Callback to notify when a near miss occurs
+    private obstacles: Collidable[];
+    private onCollisionCallback: (obstacle: Collidable) => void; 
+    private onNearMissCallback: () => void; 
 
-    constructor(car: Car, obstacles: Obstacle[], onCollision: (obstacle: Obstacle) => void, onNearMiss: () => void) {
+    constructor(car: Car, obstacles: Collidable[], onCollision: (obstacle: Collidable) => void, onNearMiss: () => void) {
         this.car = car;
         this.obstacles = obstacles;
         this.onCollisionCallback = onCollision;
@@ -57,9 +62,9 @@ export class CollisionSystem {
     /**
      * Updates the internal list of obstacles that the system will check against.
      * This method is crucial as obstacles are dynamically spawned and removed from the scene.
-     * @param obstacles The current array of active `Obstacle` instances in the game.
+     * @param obstacles The current array of active `Collidable` instances in the game.
      */
-    public setObstacles(obstacles: Obstacle[]): void {
+    public setObstacles(obstacles: Collidable[]): void {
         this.obstacles = obstacles;
     }
 
