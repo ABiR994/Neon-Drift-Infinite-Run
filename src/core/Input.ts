@@ -5,6 +5,10 @@ export class Input {
     private keysPressed: Set<string>;
     private keysJustPressed: Set<string>; // New set to track keys pressed once per frame
     private allowedKeys: Set<string>;
+    private touchStartX: number = 0;
+    private touchStartY: number = 0;
+    private swipeThreshold: number = 30;
+    private isTouching: boolean = false;
 
     private constructor() {
         this.keysPressed = new Set();
@@ -25,6 +29,41 @@ export class Input {
         // Using arrow functions or binding `this` to ensure correct context
         window.addEventListener('keydown', (event: KeyboardEvent) => this.handleKeyDown(event));
         window.addEventListener('keyup', (event: KeyboardEvent) => this.handleKeyUp(event));
+
+        // Touch events
+        window.addEventListener('touchstart', (e: TouchEvent) => {
+            this.touchStartX = e.touches[0].clientX;
+            this.touchStartY = e.touches[0].clientY;
+            this.isTouching = true;
+        }, { passive: false });
+
+        window.addEventListener('touchend', (e: TouchEvent) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            this.handleSwipe(this.touchStartX, this.touchStartY, touchEndX, touchEndY);
+            this.isTouching = false;
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e: TouchEvent) => {
+            // Prevent scrolling
+            e.preventDefault();
+        }, { passive: false });
+    }
+
+    private handleSwipe(startX: number, startY: number, endX: number, endY: number): void {
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            // Horizontal swipe
+            if (Math.abs(diffX) > this.swipeThreshold) {
+                if (diffX > 0) {
+                    this.keysJustPressed.add('ArrowRight');
+                } else {
+                    this.keysJustPressed.add('ArrowLeft');
+                }
+            }
+        }
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
@@ -97,7 +136,7 @@ export class Input {
      * Checks if either 'W' or 'ArrowUp' is pressed for a slight boost.
      */
     public isBoosting(): boolean {
-        return this.isKeyPressed('KeyW') || this.isKeyPressed('ArrowUp');
+        return this.isKeyPressed('KeyW') || this.isKeyPressed('ArrowUp') || this.isTouching;
     }
 
     /**

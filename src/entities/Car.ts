@@ -566,17 +566,36 @@ export class Car {
             while (this.particleTimer >= spawnInterval) {
                 this.particleTimer -= spawnInterval;
                 
-                for (const pos of this.exhaustPositions) {
+                // Drift particles if moving fast between lanes
+                const isDrifting = Math.abs(targetX - this.currentLaneX) > 0.5;
+
+                for (let i = 0; i < this.exhaustPositions.length; i++) {
+                    const pos = this.exhaustPositions[i];
                     const worldPos = pos.clone().applyMatrix4(this.mesh.matrixWorld);
+                    
+                    // Normal exhaust
                     const velocity = new THREE.Vector3(
                         (Math.random() - 0.5) * 0.5,
                         (Math.random() - 0.5) * 0.5,
-                        -speed * 0.2 // Particles move backward relative to road
+                        -speed * 0.2
                     );
-                    const color = new THREE.Color(0x00ffff); // Cyan particles
-                    if (Math.random() > 0.7) color.setHex(0xff00ff); // Occasional magenta
+                    const color = new THREE.Color(0x00ffff);
+                    if (Math.random() > 0.7) color.setHex(0xff00ff);
                     
                     particleSystem.spawn(worldPos, velocity, color, 0.8, 0.3);
+
+                    // Drift sparks
+                    if (isDrifting) {
+                        const wheel = this.wheels[i + 2]; // Rear wheels
+                        const wheelPos = new THREE.Vector3().setFromMatrixPosition(wheel.matrixWorld);
+                        const driftVelocity = new THREE.Vector3(
+                            (Math.random() - 0.5) * 2,
+                            Math.random() * 2,
+                            (Math.random() - 0.5) * 2
+                        );
+                        const driftColor = new THREE.Color(0xffaa00); // Orange sparks
+                        particleSystem.spawn(wheelPos, driftVelocity, driftColor, 0.5, 0.5);
+                    }
                 }
             }
         }
