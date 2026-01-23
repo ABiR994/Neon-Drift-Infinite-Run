@@ -138,6 +138,33 @@ export const THEMES: Theme[] = [
 
 export const THEME_MILESTONE = 2000; // Change theme every 2000 points
 
+// Upgrade constants
+export interface UpgradeLevel {
+    cost: number;
+    value: number;
+}
+
+export const UPGRADES = {
+    DURATION: [
+        { cost: 0, value: 1.0 },
+        { cost: 500, value: 1.2 },
+        { cost: 1200, value: 1.5 },
+        { cost: 2500, value: 2.0 },
+    ],
+    COOLING: [
+        { cost: 0, value: 1.0 },
+        { cost: 400, value: 1.25 },
+        { cost: 1000, value: 1.6 },
+        { cost: 2000, value: 2.2 },
+    ],
+    MAGNET_STRENGTH: [
+        { cost: 0, value: 1.0 },
+        { cost: 600, value: 1.3 },
+        { cost: 1500, value: 1.8 },
+        { cost: 3000, value: 2.5 },
+    ]
+};
+
 // UI animation constants
 export const HUD_MAX_BLUR = 5; // Max blur in pixels at max speed
 export const HUD_MAX_MOTION_OFFSET = 10; // Max Y-offset for HUD motion at max speed

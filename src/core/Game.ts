@@ -9,6 +9,7 @@ import { CollisionSystem } from '../systems/CollisionSystem';
 import { ScoreSystem } from '../systems/ScoreSystem';
 import { HUD } from '../ui/HUD';
 import { GameOverScreen } from '../ui/GameOverScreen';
+import { Garage } from '../ui/Garage';
 import { FloatingTextManager } from '../ui/FloatingTextManager';
 import { PowerUpSpawner } from '../systems/PowerUpSpawner';
 import { CreditSpawner } from '../systems/CreditSpawner';
@@ -31,7 +32,8 @@ import {
     MANUAL_BOOST_SPEED_MULT,
     CREDIT_VALUE,
     THEMES,
-    THEME_MILESTONE
+    THEME_MILESTONE,
+    UPGRADES
 } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 
@@ -49,6 +51,7 @@ export class Game {
     private scoreSystem: ScoreSystem;
     private hud: HUD;
     private gameOverScreen: GameOverScreen;
+    private garage: Garage;
     private floatingTextManager: FloatingTextManager;
     private powerUpSpawner: PowerUpSpawner;
     private creditSpawner: CreditSpawner;
@@ -74,6 +77,11 @@ export class Game {
     private isOverheated: boolean = false;
     private overheatCooldownTimer: number = 0;
 
+    // Upgrade Multipliers
+    private durationMult: number = 1;
+    private coolingMult: number = 1;
+    private magnetMult: number = 1;
+
     // UI elements for visual effects
     private uiContainer: HTMLElement | null = null;
     private speedLinesElement: HTMLElement | null = null;
@@ -87,13 +95,22 @@ export class Game {
         this.scoreSystem = new ScoreSystem();
         this.hud = new HUD();
         this.gameOverScreen = new GameOverScreen(this.restartGame.bind(this));
+        this.garage = new Garage(this.applyUpgrades.bind(this));
         this.floatingTextManager = new FloatingTextManager();
+
+        // Register garage button
+        document.getElementById('garage-button')?.addEventListener('click', () => {
+            this.garage.show(this.totalCredits);
+        });
+
         this.powerUpSpawner = new PowerUpSpawner(this.sceneManager.getScene());
         this.creditSpawner = new CreditSpawner(this.sceneManager.getScene());
 
         // Load total credits from storage
         const storedCredits = localStorage.getItem('neon_drift_credits');
         this.totalCredits = storedCredits ? parseInt(storedCredits) : 0;
+
+        this.applyUpgrades();
 
         // Get UI elements for visual effects
         this.uiContainer = document.getElementById('ui-container');
@@ -181,12 +198,12 @@ export class Game {
             }
         } else {
             if (this.isOverheated) {
-                this.overheatCooldownTimer -= deltaTime;
+                this.overheatCooldownTimer -= deltaTime * this.coolingMult;
                 if (this.overheatCooldownTimer <= 0) {
                     this.isOverheated = false;
                 }
             }
-            this.heat = Math.max(0, this.heat - HEAT_DECREASE_RATE * deltaTime);
+            this.heat = Math.max(0, this.heat - HEAT_DECREASE_RATE * deltaTime * this.coolingMult);
         }
 
         const boostPowerUpActive = this.boostTimer > 0;
@@ -265,9 +282,9 @@ export class Game {
             // Magnet effect: pull power-ups toward car
             if (this.magnetTimer > 0) {
                 const distZ = p.mesh.position.z - this.car.mesh.position.z;
-                if (distZ < 20 && distZ > 0) {
+                if (distZ < 20 * this.magnetMult && distZ > 0) {
                     const dir = this.car.mesh.position.clone().sub(p.mesh.position).normalize();
-                    p.mesh.position.add(dir.multiplyScalar(20 * (1 / 60))); // Basic pull
+                    p.mesh.position.add(dir.multiplyScalar(20 * this.magnetMult * (1 / 60))); // Basic pull
                 }
             }
 
@@ -286,9 +303,9 @@ export class Game {
             // Magnet effect: pull credits toward car
             if (this.magnetTimer > 0) {
                 const distZ = c.mesh.position.z - this.car.mesh.position.z;
-                if (distZ < 25 && distZ > 0) {
+                if (distZ < 25 * this.magnetMult && distZ > 0) {
                     const dir = this.car.mesh.position.clone().sub(c.mesh.position).normalize();
-                    c.mesh.position.add(dir.multiplyScalar(30 * (1 / 60)));
+                    c.mesh.position.add(dir.multiplyScalar(30 * this.magnetMult * (1 / 60)));
                 }
             }
 
@@ -314,14 +331,14 @@ export class Game {
                 this.isShieldActive = true;
                 break;
             case 'BOOST':
-                this.boostTimer = POWERUP_DURATION_BOOST;
+                this.boostTimer = POWERUP_DURATION_BOOST * this.durationMult;
                 this.sceneManager.triggerLightFlash(0.5);
                 break;
             case 'MULTIPLIER':
-                this.multiplierTimer = POWERUP_DURATION_MULTIPLIER;
+                this.multiplierTimer = POWERUP_DURATION_MULTIPLIER * this.durationMult;
                 break;
             case 'MAGNET':
-                this.magnetTimer = POWERUP_DURATION_MAGNET;
+                this.magnetTimer = POWERUP_DURATION_MAGNET * this.durationMult;
                 break;
         }
     }
@@ -378,6 +395,17 @@ export class Game {
             }
             this.gameOverScreen.show(finalGameScore); // Pass captured score
         }, COLLISION_FREEZE_DURATION * 1000);
+    }
+
+    private applyUpgrades(): void {
+        const levels = JSON.parse(localStorage.getItem('neon_drift_upgrades') || '{"DURATION": 0, "COOLING": 0, "MAGNET_STRENGTH": 0}');
+        this.durationMult = UPGRADES.DURATION[levels.DURATION].value;
+        this.coolingMult = UPGRADES.COOLING[levels.COOLING].value;
+        this.magnetMult = UPGRADES.MAGNET_STRENGTH[levels.MAGNET_STRENGTH].value;
+        
+        // Refresh total credits in case they changed in Garage
+        const storedCredits = localStorage.getItem('neon_drift_credits');
+        this.totalCredits = storedCredits ? parseInt(storedCredits) : 0;
     }
 
     private restartGame(): void {
