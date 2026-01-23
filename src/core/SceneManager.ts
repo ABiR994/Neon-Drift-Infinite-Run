@@ -55,6 +55,7 @@ export class SceneManager {
     private originalDirectionalLightIntensity: number | null = null; // Store original directional light intensity
     private shakeTimer: number = 0; // Timer for camera shake duration
     private currentShakeIntensity: number = 0; // Current intensity for temporary shakes
+    private glitchTimer: number = 0;
 
     // Post-processing
     private composer: EffectComposer;
@@ -352,6 +353,14 @@ export class SceneManager {
     }
 
     /**
+     * Triggers a visual glitch effect.
+     * @param duration The duration of the glitch in seconds.
+     */
+    public triggerGlitch(duration: number): void {
+        this.glitchTimer = duration;
+    }
+
+    /**
      * Updates environment effects based on game speed and time, such as fog density, camera FOV, camera tilt, and camera shake.
      * @param speed The current game speed.
      * @param time The total elapsed time, for pulsation and shake effects.
@@ -411,6 +420,24 @@ export class SceneManager {
                     this.camera.position.x = this.initialCameraPosition.x;
                     this.camera.position.y = this.initialCameraPosition.y;
                 }
+            }
+        }
+
+        // Apply glitch effect
+        if (this.glitchTimer > 0) {
+            this.glitchTimer -= deltaTime;
+            
+            // Randomly offset bloom and camera to simulate a glitch
+            if (Math.random() > 0.5) {
+                this.bloomPass.strength = BLOOM_STRENGTH * (1 + Math.random() * 2);
+                this.camera.position.x += (Math.random() - 0.5) * 2;
+                this.camera.position.y += (Math.random() - 0.5) * 2;
+            } else {
+                this.bloomPass.strength = BLOOM_STRENGTH;
+            }
+            
+            if (this.glitchTimer <= 0) {
+                this.bloomPass.strength = BLOOM_STRENGTH;
             }
         }
     }

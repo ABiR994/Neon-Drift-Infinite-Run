@@ -1,5 +1,6 @@
 // src/entities/Car.ts
 import * as THREE from 'three';
+import { ParticleSystem } from '../systems/ParticleSystem';
 import {
     CAR_WIDTH,
     CAR_HEIGHT,
@@ -11,7 +12,8 @@ import {
     CAR_MAX_TILT_ANGLE,
     CAR_TILT_SPEED,
     CAR_BOUNCE_AMPLITUDE,
-    CAR_BOUNCE_FREQUENCY
+    CAR_BOUNCE_FREQUENCY,
+    ENGINE_PARTICLE_SPAWN_RATE
 } from '../utils/constants';
 import { clamp, lerp, getLanePositionX } from '../utils/helpers';
 
@@ -25,6 +27,11 @@ export class Car {
     private colliderSize: THREE.Vector3;
     // Wheel references for spinning animation
     private wheels: THREE.Mesh[] = [];
+    private particleTimer: number = 0;
+    private exhaustPositions: THREE.Vector3[] = [
+        new THREE.Vector3(-CAR_WIDTH / 4, -CAR_HEIGHT / 2 + 0.12, -CAR_DEPTH / 2),
+        new THREE.Vector3(CAR_WIDTH / 4, -CAR_HEIGHT / 2 + 0.12, -CAR_DEPTH / 2)
+    ];
 
     constructor(scene: THREE.Scene) {
         this.mesh = this.createCarMesh();
@@ -507,8 +514,9 @@ export class Car {
      * @param deltaTime The time elapsed since the last frame.
      * @param time The total elapsed time, for animation effects like bounce.
      * @param speed The current game speed (for wheel spinning).
+     * @param particleSystem Optional particle system for exhaust effects.
      */
-    public update(deltaTime: number, time: number, speed: number = 15): void {
+    public update(deltaTime: number, time: number, speed: number = 15, particleSystem?: ParticleSystem): void {
         const targetX = this.getLanePositionX(this.targetLane);
 
         // Smoothly interpolate the car's X position towards the target lane's X position
@@ -528,6 +536,29 @@ export class Car {
 
         // Spin the wheels based on speed
         this.spinWheels(speed, deltaTime);
+
+        // Spawn engine particles
+        if (particleSystem) {
+            this.particleTimer += deltaTime;
+            const spawnInterval = 1 / ENGINE_PARTICLE_SPAWN_RATE;
+            
+            while (this.particleTimer >= spawnInterval) {
+                this.particleTimer -= spawnInterval;
+                
+                for (const pos of this.exhaustPositions) {
+                    const worldPos = pos.clone().applyMatrix4(this.mesh.matrixWorld);
+                    const velocity = new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.5,
+                        (Math.random() - 0.5) * 0.5,
+                        -speed * 0.2 // Particles move backward relative to road
+                    );
+                    const color = new THREE.Color(0x00ffff); // Cyan particles
+                    if (Math.random() > 0.7) color.setHex(0xff00ff); // Occasional magenta
+                    
+                    particleSystem.spawn(worldPos, velocity, color, 0.8, 0.3);
+                }
+            }
+        }
 
         // Update the bounding box collider to match the car's new position
         this.updateCollider();

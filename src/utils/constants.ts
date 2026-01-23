@@ -102,6 +102,11 @@ export const UI_SELECTORS = {
     GAME_OVER_NEW_HIGH_SCORE_MESSAGE: '#new-high-score-message', // New: Selector for new high score message
 };
 
+// Particle constants
+export const PARTICLE_COUNT_MAX = 1000;
+export const ENGINE_PARTICLE_SPAWN_RATE = 20; // Particles per second
+export const COLLISION_PARTICLE_COUNT = 30;
+
 // UI animation constants
 export const HUD_MAX_BLUR = 5; // Max blur in pixels at max speed
 export const HUD_MAX_MOTION_OFFSET = 10; // Max Y-offset for HUD motion at max speed
