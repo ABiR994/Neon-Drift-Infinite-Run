@@ -1,0 +1,95 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Sharp Neon Gradients -->
+    <linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00fff2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7000ff;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#00ffff;stop-opacity:1" />
+      <stop offset="51%" style="stop-color:#004444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#008888;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Multi-stage Bloom Filters -->
+    <filter id="hyperGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="8" result="softBlur"/>
+      <feMerge>
+        <feMergeNode in="softBlur"/>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="horizonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#120422;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#00ffff;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+
+  <!-- Solid Background -->
+  <rect width="512" height="512" fill="#030008" rx="60" />
+
+  <!-- The Horizon Glow -->
+  <rect x="0" y="256" width="512" height="256" fill="url(#horizonGrad)" />
+
+  <!-- Animated-style Perspective Grid -->
+  <g stroke="#00ffff" stroke-width="1.5" opacity="0.4">
+    <path d="M0 440 L512 440 M0 460 L512 460 M0 490 L512 490" />
+    <!-- Vanishing points -->
+    <path d="M256 340 L-100 512 M256 340 L100 512 M256 340 L256 512 M256 340 L412 512 M256 340 L612 512" />
+  </g>
+
+  <!-- The "V" Shape Horizon Flare -->
+  <path d="M50 340 L256 320 L462 340" fill="none" stroke="#7000ff" stroke-width="2" opacity="0.6" filter="url(#hyperGlow)"/>
+
+  <!-- Main Car Entity - Aggressive Perspective -->
+  <g transform="translate(256, 380)" filter="url(#hyperGlow)">
+    <!-- Rear Wing / Spoiler -->
+    <path d="M-90 -50 L90 -50 L100 -70 L-100 -70 Z" fill="#000" stroke="#ff00ff" stroke-width="2" />
+    
+    <!-- Wide Body Silhouette -->
+    <path d="M-120 20 L120 20 L135 -10 L100 -45 L-100 -45 L-135 -10 Z" 
+          fill="#030008" 
+          stroke="url(#cyberGrad)" 
+          stroke-width="5" />
+    
+    <!-- Cockpit Glass -->
+    <path d="M-60 -40 L60 -40 L75 -15 L-75 -15 Z" fill="url(#chromeGrad)" opacity="0.4" />
+    
+    <!-- Underglow -->
+    <ellipse cx="0" cy="22" rx="100" ry="8" fill="#00ffff" opacity="0.5" filter="url(#hyperGlow)" />
+    
+    <!-- Tail Lights -->
+    <rect x="-100" y="-35" width="40" height="4" fill="#ff00ff" rx="2" filter="url(#hyperGlow)" />
+    <rect x="60" y="-35" width="40" height="4" fill="#ff00ff" rx="2" filter="url(#hyperGlow)" />
+  </g>
+
+  <!-- Text Layer - Hyper Stylized -->
+  <g transform="translate(256, 180)">
+    <!-- Shadow/Glow Background -->
+    <text font-family="Impact, sans-serif" font-style="italic" font-weight="900" font-size="82" text-anchor="middle" fill="#7000ff" opacity="0.5" filter="url(#hyperGlow)" style="letter-spacing: -2px;">NEON</text>
+    
+    <!-- Main "NEON" -->
+    <text font-family="Impact, sans-serif" font-style="italic" font-weight="900" font-size="80" text-anchor="middle" fill="url(#chromeGrad)" stroke="#00ffff" stroke-width="1" style="letter-spacing: -2px;">NEON</text>
+    
+    <!-- Sub-text "DRIFT" with glitch offset -->
+    <g transform="translate(0, 75)">
+      <text font-family="Verdana, sans-serif" font-weight="900" font-size="36" text-anchor="middle" fill="#ff00ff" filter="url(#hyperGlow)" style="letter-spacing: 24px; text-transform: uppercase;">DRIFT</text>
+    </g>
+    
+    <!-- Decorative Tech-lines -->
+    <rect x="-180" y="-85" width="60" height="4" fill="#00ffff" />
+    <rect x="120" y="-85" width="60" height="4" fill="#ff00ff" />
+  </g>
+
+  <!-- Action Sparks / Speed Blur -->
+  <g filter="url(#hyperGlow)">
+    <circle cx="100" cy="400" r="2" fill="#fff" />
+    <circle cx="412" cy="420" r="1.5" fill="#fff" />
+    <circle cx="50" cy="450" r="1" fill="#fff" />
+  </g>
+</svg>
