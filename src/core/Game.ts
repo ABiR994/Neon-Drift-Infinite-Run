@@ -259,9 +259,6 @@ export class Game {
             this.car.moveRight();
         }
 
-        // Apply Camera Drift Tilt (banking)
-        this.sceneManager.setCameraDriftTilt(this.car.getDriftFactor() * 0.05);
-
         this.car.update(deltaTime, currentTime / 1000, actualSpeed);
         this.car.setShieldVisible(this.isShieldActive);
         

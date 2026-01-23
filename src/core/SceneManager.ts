@@ -56,7 +56,6 @@ export class SceneManager {
     private originalDirectionalLightIntensity: number | null = null; // Store original directional light intensity
     private shakeTimer: number = 0; // Timer for camera shake duration
     private currentShakeIntensity: number = 0; // Current intensity for temporary shakes
-    private cameraTargetRotationZ: number = 0;
     private timeScale: number = 1.0;
 
     // Post-processing
@@ -411,14 +410,6 @@ export class SceneManager {
     }
 
     /**
-     * Sets the target camera bank/tilt angle.
-     * @param angle The angle in radians.
-     */
-    public setCameraDriftTilt(angle: number): void {
-        this.cameraTargetRotationZ = angle;
-    }
-
-    /**
      * Updates environment effects based on game speed and time, such as fog density, camera FOV, camera tilt, and camera shake.
      * @param speed The current game speed.
      * @param time The total elapsed time, for pulsation and shake effects.
@@ -444,9 +435,6 @@ export class SceneManager {
         // 3. Update Camera Tilt (slight forward tilt at higher speeds)
         // Lerp from initial (0) tilt to CAMERA_TILT_MAX_ANGLE
         this.camera.rotation.x = this.initialCameraRotationX + CAMERA_TILT_MAX_ANGLE * t;
-
-        // 3b. Update Camera Drift Tilt (banking)
-        this.camera.rotation.z = THREE.MathUtils.lerp(this.camera.rotation.z, this.cameraTargetRotationZ, 5 * deltaTime);
 
         // 4. Implement Camera Shake (subtle at high speeds)
         if (speed > CAMERA_SHAKE_SPEED_THRESHOLD) {
