@@ -13,6 +13,7 @@ import { Garage } from '../ui/Garage';
 import { FloatingTextManager } from '../ui/FloatingTextManager';
 import { PowerUpSpawner } from '../systems/PowerUpSpawner';
 import { CreditSpawner } from '../systems/CreditSpawner';
+import { EnvironmentSystem } from '../systems/EnvironmentSystem';
 import {
     GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
@@ -56,6 +57,7 @@ export class Game {
     private floatingTextManager: FloatingTextManager;
     private powerUpSpawner: PowerUpSpawner;
     private creditSpawner: CreditSpawner;
+    private environmentSystem: EnvironmentSystem;
 
     private lastFrameTime: DOMHighResTimeStamp = 0;
     private animationFrameId: number | null = null;
@@ -110,6 +112,7 @@ export class Game {
 
         this.powerUpSpawner = new PowerUpSpawner(this.sceneManager.getScene());
         this.creditSpawner = new CreditSpawner(this.sceneManager.getScene());
+        this.environmentSystem = new EnvironmentSystem(this.sceneManager.getScene());
 
         // Load total credits from storage
         const storedCredits = localStorage.getItem('neon_drift_credits');
@@ -160,6 +163,7 @@ export class Game {
         this.obstacleSpawner.reset();
         this.powerUpSpawner.reset();
         this.creditSpawner.reset();
+        this.environmentSystem.reset();
         this.scoreSystem.reset();
         this.hud.reset();
         this.hud.show(); // Show HUD when game starts
@@ -252,6 +256,7 @@ export class Game {
         this.obstacleSpawner.update(deltaTime, actualSpeed, currentTime);
         this.powerUpSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
         this.creditSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
+        this.environmentSystem.update(deltaTime, actualSpeed, currentTime / 1000);
 
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.checkPowerUpCollisions();
@@ -511,6 +516,7 @@ export class Game {
         this.gameOverScreen.dispose();
         this.floatingTextManager.dispose();
         this.creditSpawner.dispose();
+        this.environmentSystem.dispose();
         this.sceneManager.dispose();
     }
 }
