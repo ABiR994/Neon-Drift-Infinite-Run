@@ -6,10 +6,10 @@ import { NEAR_MISS_DISTANCE, CAR_WIDTH, CAR_DEPTH, OBSTACLE_WIDTH, OBSTACLE_DEPT
 export class CollisionSystem {
     private car: Car;
     private obstacles: Obstacle[];
-    private onCollisionCallback: () => void; // Callback to notify when a collision occurs
+    private onCollisionCallback: (obstacle: Obstacle) => void; // Updated to pass obstacle
     private onNearMissCallback: () => void; // Callback to notify when a near miss occurs
 
-    constructor(car: Car, obstacles: Obstacle[], onCollision: () => void, onNearMiss: () => void) {
+    constructor(car: Car, obstacles: Obstacle[], onCollision: (obstacle: Obstacle) => void, onNearMiss: () => void) {
         this.car = car;
         this.obstacles = obstacles;
         this.onCollisionCallback = onCollision;
@@ -31,7 +31,7 @@ export class CollisionSystem {
             if (this.car.collider.intersectsBox(obstacle.collider)) {
                 // Collision detected! Invoke the callback and immediately exit.
                 // We only care about the first collision in a frame.
-                this.onCollisionCallback();
+                this.onCollisionCallback(obstacle);
                 return;
             }
 

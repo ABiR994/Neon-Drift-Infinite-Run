@@ -12,6 +12,7 @@ import { GameOverScreen } from '../ui/GameOverScreen';
 import { FloatingTextManager } from '../ui/FloatingTextManager';
 import { ParticleSystem } from '../systems/ParticleSystem';
 import { SoundManager } from '../systems/SoundManager';
+import { PowerUpSpawner } from '../systems/PowerUpSpawner';
 import {
     GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
@@ -21,7 +22,11 @@ import {
     COLLISION_SHAKE_INTENSITY,
     COLLISION_FLASH_DURATION,
     COLLISION_FREEZE_DURATION,
-    COLLISION_PARTICLE_COUNT
+    COLLISION_PARTICLE_COUNT,
+    POWERUP_DURATION_BOOST,
+    POWERUP_DURATION_MULTIPLIER,
+    POWERUP_DURATION_MAGNET,
+    POWERUP_BOOST_SPEED_MULT
 } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 
@@ -42,11 +47,18 @@ export class Game {
     private floatingTextManager: FloatingTextManager;
     private particleSystem: ParticleSystem;
     private soundManager: SoundManager;
+    private powerUpSpawner: PowerUpSpawner;
 
     private lastFrameTime: DOMHighResTimeStamp = 0;
     private animationFrameId: number | null = null;
     private currentSpeed: number = GAME_SPEED_INITIAL;
     private gameState: GameState = 'playing';
+
+    // Power-up state
+    private isShieldActive: boolean = false;
+    private boostTimer: number = 0;
+    private multiplierTimer: number = 0;
+    private magnetTimer: number = 0;
 
     // UI elements for visual effects
     private uiContainer: HTMLElement | null = null;
@@ -64,6 +76,7 @@ export class Game {
         this.floatingTextManager = new FloatingTextManager();
         this.particleSystem = new ParticleSystem(this.sceneManager.getScene());
         this.soundManager = new SoundManager(this.sceneManager.getCamera());
+        this.powerUpSpawner = new PowerUpSpawner(this.sceneManager.getScene());
 
         // Get UI elements for visual effects
         this.uiContainer = document.getElementById('ui-container');
@@ -72,7 +85,7 @@ export class Game {
         this.collisionSystem = new CollisionSystem(
             this.car,
             this.obstacleSpawner.getObstacles(),
-            this.endGame.bind(this),
+            this.handleCollision.bind(this),
             this.handleNearMiss.bind(this)
         );
 
@@ -87,9 +100,15 @@ export class Game {
         this.currentSpeed = GAME_SPEED_INITIAL;
         this.lastFrameTime = performance.now();
 
+        this.isShieldActive = false;
+        this.boostTimer = 0;
+        this.multiplierTimer = 0;
+        this.magnetTimer = 0;
+
         this.road.reset();
         this.car.reset();
         this.obstacleSpawner.reset();
+        this.powerUpSpawner.reset();
         this.scoreSystem.reset();
         this.hud.reset();
         this.hud.updateScore(this.scoreSystem.getScore());
@@ -125,10 +144,19 @@ export class Game {
     }
 
     private update(deltaTime: number, currentTime: DOMHighResTimeStamp): void {
+        // Update timers
+        if (this.boostTimer > 0) this.boostTimer -= deltaTime;
+        if (this.multiplierTimer > 0) this.multiplierTimer -= deltaTime;
+        if (this.magnetTimer > 0) this.magnetTimer -= deltaTime;
+
+        const speedMultiplier = this.boostTimer > 0 ? POWERUP_BOOST_SPEED_MULT : 1;
+        
         this.currentSpeed = Math.min(
             GAME_SPEED_MAX,
             this.currentSpeed + GAME_SPEED_INCREMENT_PER_SECOND * deltaTime
         );
+
+        const actualSpeed = this.currentSpeed * speedMultiplier;
 
         if (this.input.isMoveLeftJustPressed()) {
             this.car.moveLeft();
@@ -136,18 +164,34 @@ export class Game {
             this.car.moveRight();
         }
 
-        this.car.update(deltaTime, currentTime / 1000, this.currentSpeed, this.particleSystem);
-        this.road.update(deltaTime, this.currentSpeed, currentTime / 1000);
-        this.obstacleSpawner.update(deltaTime, this.currentSpeed, currentTime);
+        this.car.update(deltaTime, currentTime / 1000, actualSpeed, this.particleSystem);
+        this.car.setShieldVisible(this.isShieldActive);
+        
+        this.road.update(deltaTime, actualSpeed, currentTime / 1000);
+        this.obstacleSpawner.update(deltaTime, actualSpeed, currentTime);
+        this.powerUpSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
+        
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
-        this.collisionSystem.update();
-        this.scoreSystem.update(deltaTime, this.currentSpeed);
+        this.checkPowerUpCollisions();
+        
+        if (this.boostTimer <= 0) {
+            this.collisionSystem.update();
+        }
+        
+        const scoreMultiplier = this.multiplierTimer > 0 ? 2 : 1;
+        this.scoreSystem.update(deltaTime, actualSpeed * scoreMultiplier);
 
-        this.sceneManager.updateEnvironment(this.currentSpeed, currentTime / 1000, deltaTime);
-        this.soundManager.updateEngine(getNormalizedSpeed(this.currentSpeed));
+        this.sceneManager.updateEnvironment(actualSpeed, currentTime / 1000, deltaTime);
+        this.soundManager.updateEngine(getNormalizedSpeed(actualSpeed));
 
         this.hud.updateScore(this.scoreSystem.getScore());
-        this.hud.update(this.currentSpeed);
+        this.hud.updateStatus({
+            shield: this.isShieldActive,
+            boost: this.boostTimer > 0,
+            multiplier: this.multiplierTimer > 0,
+            magnet: this.magnetTimer > 0
+        });
+        this.hud.update(actualSpeed);
 
         // Update speed lines visibility based on speed
         this.updateSpeedLines();
@@ -156,6 +200,50 @@ export class Game {
         this.particleSystem.update(deltaTime);
 
         this.input.clearJustPressedKeys();
+    }
+
+    private checkPowerUpCollisions(): void {
+        const powerUps = this.powerUpSpawner.getPowerUps();
+        for (let i = powerUps.length - 1; i >= 0; i--) {
+            const p = powerUps[i];
+            
+            // Magnet effect: pull power-ups toward car
+            if (this.magnetTimer > 0) {
+                const distZ = p.mesh.position.z - this.car.mesh.position.z;
+                if (distZ < 20 && distZ > 0) {
+                    const dir = this.car.mesh.position.clone().sub(p.mesh.position).normalize();
+                    p.mesh.position.add(dir.multiplyScalar(20 * (1 / 60))); // Basic pull
+                }
+            }
+
+            if (this.car.collider.intersectsBox(p.collider)) {
+                this.handlePowerUpCollection(p);
+                this.powerUpSpawner.removePowerUp(p);
+            }
+        }
+    }
+
+    private handlePowerUpCollection(p: any): void {
+        const text = p.type;
+        const x = window.innerWidth / 2;
+        const y = window.innerHeight / 2;
+        this.floatingTextManager.spawnText(text, x, y);
+
+        switch (p.type) {
+            case 'SHIELD':
+                this.isShieldActive = true;
+                break;
+            case 'BOOST':
+                this.boostTimer = POWERUP_DURATION_BOOST;
+                this.sceneManager.triggerLightFlash(0.5);
+                break;
+            case 'MULTIPLIER':
+                this.multiplierTimer = POWERUP_DURATION_MULTIPLIER;
+                break;
+            case 'MAGNET':
+                this.magnetTimer = POWERUP_DURATION_MAGNET;
+                break;
+        }
     }
 
     /**
@@ -171,6 +259,21 @@ export class Game {
                 this.speedLinesElement.classList.remove('active');
             }
         }
+    }
+
+    private handleCollision(obstacle: any): void {
+        if (this.isShieldActive) {
+            this.isShieldActive = false;
+            this.car.setShieldVisible(false);
+            this.sceneManager.triggerSmallShake(0.1);
+            this.floatingTextManager.spawnText("SHIELD BROKEN", window.innerWidth / 2, window.innerHeight / 2);
+            
+            // Push obstacle away or destroy it?
+            // For now, let's just make the car invincible for a tiny bit to pass through
+            this.boostTimer = 0.5; 
+            return;
+        }
+        this.endGame();
     }
 
     private render(): void {

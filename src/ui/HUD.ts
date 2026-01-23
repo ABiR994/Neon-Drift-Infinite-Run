@@ -7,6 +7,7 @@ export class HUD {
     private hudElement: HTMLElement | null;
     private scoreElement: HTMLElement | null;
     private speedElement: HTMLElement | null;
+    private statusContainer: HTMLElement | null;
     private displayedSpeed: { value: number } = { value: 0 };
     private speedTween: TWEEN.Tween<typeof this.displayedSpeed> | null = null;
 
@@ -14,6 +15,7 @@ export class HUD {
         this.hudElement = document.querySelector('#hud');
         this.scoreElement = document.querySelector(UI_SELECTORS.HUD_SCORE_VALUE);
         this.speedElement = document.querySelector(UI_SELECTORS.HUD_SPEED_VALUE);
+        this.statusContainer = document.querySelector('#status-container');
 
         if (!this.hudElement) {
             console.warn(`HUD: Main HUD element with selector "#hud" not found.`);
@@ -33,6 +35,25 @@ export class HUD {
         if (this.scoreElement) {
             this.scoreElement.textContent = Math.floor(score).toString();
         }
+    }
+
+    public updateStatus(status: { shield: boolean, boost: boolean, multiplier: boolean, magnet: boolean }): void {
+        if (!this.statusContainer) return;
+
+        // Clear and rebuild status icons (simple approach)
+        this.statusContainer.innerHTML = '';
+        
+        if (status.shield) this.addStatusIcon('shield');
+        if (status.boost) this.addStatusIcon('boost');
+        if (status.multiplier) this.addStatusIcon('multiplier');
+        if (status.magnet) this.addStatusIcon('magnet');
+    }
+
+    private addStatusIcon(type: string): void {
+        if (!this.statusContainer) return;
+        const icon = document.createElement('div');
+        icon.className = `status-icon ${type}`;
+        this.statusContainer.appendChild(icon);
     }
 
     public update(speed: number): void {

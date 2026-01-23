@@ -27,6 +27,7 @@ export class Car {
     private colliderSize: THREE.Vector3;
     // Wheel references for spinning animation
     private wheels: THREE.Mesh[] = [];
+    private shieldMesh: THREE.Mesh | null = null;
     private particleTimer: number = 0;
     private exhaustPositions: THREE.Vector3[] = [
         new THREE.Vector3(-CAR_WIDTH / 4, -CAR_HEIGHT / 2 + 0.12, -CAR_DEPTH / 2),
@@ -439,7 +440,27 @@ export class Car {
         underglow.position.set(0, -CAR_HEIGHT / 2 + 0.02, 0);
         carGroup.add(underglow);
 
+        // === SHIELD BUBBLE ===
+        const shieldGeo = new THREE.SphereGeometry(CAR_DEPTH * 0.6, 32, 32);
+        const shieldMat = new THREE.MeshStandardMaterial({
+            color: 0x0088ff,
+            transparent: true,
+            opacity: 0.3,
+            emissive: 0x0088ff,
+            emissiveIntensity: 0.5,
+            side: THREE.DoubleSide
+        });
+        this.shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+        this.shieldMesh.visible = false;
+        carGroup.add(this.shieldMesh);
+
         return carGroup;
+    }
+
+    public setShieldVisible(visible: boolean): void {
+        if (this.shieldMesh) {
+            this.shieldMesh.visible = visible;
+        }
     }
 
     /**

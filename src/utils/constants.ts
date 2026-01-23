@@ -107,6 +107,14 @@ export const PARTICLE_COUNT_MAX = 1000;
 export const ENGINE_PARTICLE_SPAWN_RATE = 20; // Particles per second
 export const COLLISION_PARTICLE_COUNT = 30;
 
+// Power-up constants
+export const POWERUP_SPAWN_CHANCE = 0.2; // 20% chance to spawn a power-up instead of nothing when checking
+export const POWERUP_SPAWN_INTERVAL = 5; // Check for spawn every 5 seconds
+export const POWERUP_DURATION_BOOST = 3;
+export const POWERUP_DURATION_MULTIPLIER = 10;
+export const POWERUP_DURATION_MAGNET = 8;
+export const POWERUP_BOOST_SPEED_MULT = 1.5;
+
 // UI animation constants
 export const HUD_MAX_BLUR = 5; // Max blur in pixels at max speed
 export const HUD_MAX_MOTION_OFFSET = 10; // Max Y-offset for HUD motion at max speed

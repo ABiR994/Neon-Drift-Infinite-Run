@@ -44,6 +44,30 @@ body {
   font-size: 1.2em;
 }
 
+#status-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.status-icon {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 2px solid white;
+  animation: status-pulse 1s infinite alternate;
+}
+
+.status-icon.shield { background-color: #0088ff; box-shadow: 0 0 10px #0088ff; }
+.status-icon.boost { background-color: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+.status-icon.multiplier { background-color: #00ff44; box-shadow: 0 0 10px #00ff44; }
+.status-icon.magnet { background-color: #aa00ff; box-shadow: 0 0 10px #aa00ff; }
+
+@keyframes status-pulse {
+  from { opacity: 0.5; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1.1); }
+}
+
 #game-over-screen {
   position: absolute;
   top: 50%;
