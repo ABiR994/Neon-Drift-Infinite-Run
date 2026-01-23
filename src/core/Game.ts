@@ -11,6 +11,7 @@ import { HUD } from '../ui/HUD';
 import { GameOverScreen } from '../ui/GameOverScreen';
 import { FloatingTextManager } from '../ui/FloatingTextManager';
 import { ParticleSystem } from '../systems/ParticleSystem';
+import { SoundManager } from '../systems/SoundManager';
 import {
     GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
@@ -40,6 +41,7 @@ export class Game {
     private gameOverScreen: GameOverScreen;
     private floatingTextManager: FloatingTextManager;
     private particleSystem: ParticleSystem;
+    private soundManager: SoundManager;
 
     private lastFrameTime: DOMHighResTimeStamp = 0;
     private animationFrameId: number | null = null;
@@ -61,6 +63,7 @@ export class Game {
         this.gameOverScreen = new GameOverScreen(this.restartGame.bind(this));
         this.floatingTextManager = new FloatingTextManager();
         this.particleSystem = new ParticleSystem(this.sceneManager.getScene());
+        this.soundManager = new SoundManager(this.sceneManager.getCamera());
 
         // Get UI elements for visual effects
         this.uiContainer = document.getElementById('ui-container');
@@ -93,6 +96,9 @@ export class Game {
         this.gameOverScreen.hide();
 
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
+        
+        // Start engine sound
+        this.soundManager.startEngine();
     }
 
     public start(): void {
@@ -138,6 +144,7 @@ export class Game {
         this.scoreSystem.update(deltaTime, this.currentSpeed);
 
         this.sceneManager.updateEnvironment(this.currentSpeed, currentTime / 1000, deltaTime);
+        this.soundManager.updateEngine(getNormalizedSpeed(this.currentSpeed));
 
         this.hud.updateScore(this.scoreSystem.getScore());
         this.hud.update(this.currentSpeed);
@@ -174,6 +181,7 @@ export class Game {
         this.gameState = 'gameOver';
         const finalGameScore = this.scoreSystem.getScore(); // Capture score immediately
 
+        this.soundManager.stopEngine();
         this.sceneManager.triggerDramaticShake(COLLISION_SHAKE_INTENSITY);
         this.sceneManager.triggerCollisionFlash(COLLISION_FLASH_DURATION);
         this.sceneManager.triggerGlitch(COLLISION_FREEZE_DURATION * 2);
@@ -246,6 +254,7 @@ export class Game {
         this.gameOverScreen.dispose();
         this.floatingTextManager.dispose();
         this.particleSystem.dispose(this.sceneManager.getScene());
+        this.soundManager.dispose();
         this.sceneManager.dispose();
     }
 }
