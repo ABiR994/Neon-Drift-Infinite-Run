@@ -236,10 +236,17 @@ export class SceneManager {
             const initialFovRad = (CAMERA_FOV * Math.PI) / 180;
             const targetHFovRad = 2 * Math.atan(Math.tan(initialFovRad / 2) * (1.77)); // 1.77 is ~16/9
             const newVFovRad = 2 * Math.atan(Math.tan(targetHFovRad / 2) / aspect);
-            this.camera.fov = Math.min(120, (newVFovRad * 180) / Math.PI); // Cap FOV to avoid extreme distortion
+            this.camera.fov = Math.min(110, (newVFovRad * 180) / Math.PI); // Reduced cap to minimize distortion
+            
+            // Adjust camera position slightly back in portrait to fit lanes better
+            this.camera.position.z = CAMERA_INITIAL_POS_Z + (1 - aspect) * 5;
         } else {
             this.camera.fov = CAMERA_FOV;
+            this.camera.position.z = CAMERA_INITIAL_POS_Z;
         }
+        
+        this.initialCameraPosition.z = this.camera.position.z;
+        this.camera.lookAt(SceneManager.LOOK_AT_TARGET);
 
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
