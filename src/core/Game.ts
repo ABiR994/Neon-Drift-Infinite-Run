@@ -14,6 +14,7 @@ import { FloatingTextManager } from '../ui/FloatingTextManager';
 import { PowerUpSpawner } from '../systems/PowerUpSpawner';
 import { CreditSpawner } from '../systems/CreditSpawner';
 import { EnvironmentSystem } from '../systems/EnvironmentSystem';
+import { HunterBoss } from '../entities/HunterBoss';
 import {
     GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
@@ -58,6 +59,7 @@ export class Game {
     private powerUpSpawner: PowerUpSpawner;
     private creditSpawner: CreditSpawner;
     private environmentSystem: EnvironmentSystem;
+    private hunterBoss: HunterBoss;
 
     private lastFrameTime: DOMHighResTimeStamp = 0;
     private animationFrameId: number | null = null;
@@ -86,6 +88,11 @@ export class Game {
     private coolingMult: number = 1;
     private magnetMult: number = 1;
 
+    // Hunter state
+    private hunterTimer: number = 0;
+    private readonly HUNTER_MILESTONE: number = 10000;
+    private lastHunterMilestone: number = 0;
+
     // UI elements for visual effects
     private uiContainer: HTMLElement | null = null;
     private speedLinesElement: HTMLElement | null = null;
@@ -113,6 +120,7 @@ export class Game {
         this.powerUpSpawner = new PowerUpSpawner(this.sceneManager.getScene());
         this.creditSpawner = new CreditSpawner(this.sceneManager.getScene());
         this.environmentSystem = new EnvironmentSystem(this.sceneManager.getScene());
+        this.hunterBoss = new HunterBoss(this.sceneManager.getScene());
 
         // Load total credits from storage
         const storedCredits = localStorage.getItem('neon_drift_credits');
@@ -157,6 +165,10 @@ export class Game {
         this.heat = 0;
         this.isOverheated = false;
         this.overheatCooldownTimer = 0;
+        
+        this.hunterTimer = 0;
+        this.lastHunterMilestone = 0;
+        this.hunterBoss.deactivate();
 
         this.road.reset();
         this.car.reset();
@@ -257,6 +269,7 @@ export class Game {
         this.powerUpSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
         this.creditSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
         this.environmentSystem.update(deltaTime, actualSpeed, currentTime / 1000);
+        this.updateHunter(deltaTime, currentTime / 1000);
 
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.checkPowerUpCollisions();
@@ -301,6 +314,35 @@ export class Game {
         this.floatingTextManager.update(currentTime);
 
         this.input.clearJustPressedKeys();
+    }
+
+    private updateHunter(deltaTime: number, time: number): void {
+        const score = this.scoreSystem.getScore();
+        
+        // Trigger Hunter
+        if (score - this.lastHunterMilestone >= this.HUNTER_MILESTONE && !this.hunterBoss.isActive()) {
+            this.lastHunterMilestone = score;
+            this.hunterBoss.activate();
+            this.hunterTimer = 30; // 30 seconds survival
+            this.floatingTextManager.spawnText("HUNTER INBOUND!", window.innerWidth / 2, window.innerHeight / 2);
+            this.sceneManager.triggerDramaticShake(0.3);
+        }
+
+        if (this.hunterBoss.isActive()) {
+            this.hunterBoss.update(deltaTime, this.car.mesh.position.x, time);
+            this.hunterTimer -= deltaTime;
+            
+            // Check collision with boss laser
+            if (this.car.collider.intersectsBox(this.hunterBoss.collider)) {
+                this.handleCollision(this.hunterBoss);
+            }
+
+            if (this.hunterTimer <= 0) {
+                this.hunterBoss.deactivate();
+                this.sessionCredits += 500;
+                this.floatingTextManager.spawnText("HUNTER LOST! +500", window.innerWidth / 2, window.innerHeight / 2);
+            }
+        }
     }
 
     private checkPowerUpCollisions(): void {
