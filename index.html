@@ -5,8 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="/Neon-Drift-Infinite-Run/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Neon Drift: Infinite Run</title>
-    <script type="module" crossorigin src="/Neon-Drift-Infinite-Run/assets/index-BfeUN7-w.js"></script>
-    <link rel="stylesheet" crossorigin href="/Neon-Drift-Infinite-Run/assets/index-B3bbzb-Y.css">
+    <script type="module" crossorigin src="/Neon-Drift-Infinite-Run/assets/index-BA7si6hD.js"></script>
+    <link rel="stylesheet" crossorigin href="/Neon-Drift-Infinite-Run/assets/index-C_Mz7gu9.css">
   </head>
   <body>
     <div id="game-container"></div>
@@ -17,15 +17,87 @@
         <h1>NEON DRIFT</h1>
         <h2>INFINITE RUN</h2>
         <div class="controls">
-          <p><span>LEFT / A</span> - Move Left</p>
-          <p><span>RIGHT / D</span> - Move Right</p>
+          <p><span>WASD / ARROWS</span> TO MOVE & BOOST</p>
+          <p><span>SWIPE & HOLD</span> ON MOBILE</p>
         </div>
+        
+        <div id="tutorial-info">
+          <div class="tutorial-item">
+            <div class="status-icon shield"></div>
+            <span>SHIELD - PROTECTS FROM CRASH</span>
+          </div>
+          <div class="tutorial-item">
+            <div class="status-icon boost"></div>
+            <span>BOOST - FAST & INVINCIBLE</span>
+          </div>
+          <div class="tutorial-item">
+            <div class="status-icon multiplier"></div>
+            <span>X2 - DOUBLE POINTS</span>
+          </div>
+          <div class="tutorial-item">
+            <div class="status-icon magnet"></div>
+            <span>MAGNET - PULLS POWER-UPS</span>
+          </div>
+          <p class="boost-note">MANUAL BOOST (W/UP) INCREASES HEAT!</p>
+        </div>
+
         <p class="start-prompt">PRESS ANY KEY TO START</p>
         <p class="high-score-display" id="start-high-score"></p>
+        <div id="leaderboard-preview">
+          <h3>TOP RUNS</h3>
+          <ul id="top-scores-list"></ul>
+        </div>
+        <button id="garage-button">GARAGE</button>
       </div>
+
+      <div id="garage-screen" class="hidden">
+        <h1>GARAGE</h1>
+        <div id="garage-credits">CREDITS: <span id="garage-credits-value">0</span></div>
+        
+        <div id="garage-tabs">
+          <button class="tab-button active" id="tab-upgrades">UPGRADES</button>
+          <button class="tab-button" id="tab-skins">SKINS</button>
+        </div>
+
+        <div id="upgrades-container" class="tab-content">
+          <div class="upgrade-list">
+            <div class="upgrade-item">
+              <div class="upgrade-info">
+                <h3>POWER-UP DURATION</h3>
+                <p>LEVEL: <span id="duration-level">1</span></p>
+              </div>
+              <button class="upgrade-button" id="upgrade-duration">UPGRADE (500)</button>
+            </div>
+            <div class="upgrade-item">
+              <div class="upgrade-info">
+                <h3>COOLING SPEED</h3>
+                <p>LEVEL: <span id="cooling-level">1</span></p>
+              </div>
+              <button class="upgrade-button" id="upgrade-cooling">UPGRADE (400)</button>
+            </div>
+            <div class="upgrade-item">
+              <div class="upgrade-info">
+                <h3>MAGNET RANGE</h3>
+                <p>LEVEL: <span id="magnet-level">1</span></p>
+              </div>
+              <button class="upgrade-button" id="upgrade-magnet">UPGRADE (600)</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="skins-container" class="tab-content hidden">
+          <div id="skin-list" class="upgrade-list">
+            <!-- Skins will be injected here -->
+          </div>
+        </div>
+
+        <button id="garage-back-button">BACK</button>
+      </div>
+
       <div id="hud" class="hidden">
         <p>SCORE: <span id="score-value">0</span></p>
         <p>SPEED: <span id="speed-value">0</span> MPH</p>
+        <p>CREDITS: <span id="credits-value">0</span></p>
         <div id="heat-container">
           <div id="heat-bar"></div>
         </div>
