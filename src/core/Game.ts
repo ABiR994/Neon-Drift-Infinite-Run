@@ -33,7 +33,8 @@ import {
     CREDIT_VALUE,
     THEMES,
     THEME_MILESTONE,
-    UPGRADES
+    UPGRADES,
+    SKINS
 } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 
@@ -403,6 +404,11 @@ export class Game {
         this.coolingMult = UPGRADES.COOLING[levels.COOLING].value;
         this.magnetMult = UPGRADES.MAGNET_STRENGTH[levels.MAGNET_STRENGTH].value;
         
+        // Apply skin
+        const activeSkinName = localStorage.getItem('neon_drift_active_skin') || 'ORIGINAL';
+        const skin = SKINS.find(s => s.name === activeSkinName) || SKINS[0];
+        this.car.applySkin(skin.bodyColor, skin.accentColor);
+
         // Refresh total credits in case they changed in Garage
         const storedCredits = localStorage.getItem('neon_drift_credits');
         this.totalCredits = storedCredits ? parseInt(storedCredits) : 0;

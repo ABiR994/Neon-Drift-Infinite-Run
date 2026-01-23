@@ -48,29 +48,44 @@
       <div id="garage-screen" class="hidden">
         <h1>GARAGE</h1>
         <div id="garage-credits">CREDITS: <span id="garage-credits-value">0</span></div>
-        <div class="upgrade-list">
-          <div class="upgrade-item">
-            <div class="upgrade-info">
-              <h3>POWER-UP DURATION</h3>
-              <p>LEVEL: <span id="duration-level">1</span></p>
+        
+        <div id="garage-tabs">
+          <button class="tab-button active" id="tab-upgrades">UPGRADES</button>
+          <button class="tab-button" id="tab-skins">SKINS</button>
+        </div>
+
+        <div id="upgrades-container" class="tab-content">
+          <div class="upgrade-list">
+            <div class="upgrade-item">
+              <div class="upgrade-info">
+                <h3>POWER-UP DURATION</h3>
+                <p>LEVEL: <span id="duration-level">1</span></p>
+              </div>
+              <button class="upgrade-button" id="upgrade-duration">UPGRADE (500)</button>
             </div>
-            <button class="upgrade-button" id="upgrade-duration">UPGRADE (500)</button>
-          </div>
-          <div class="upgrade-item">
-            <div class="upgrade-info">
-              <h3>COOLING SPEED</h3>
-              <p>LEVEL: <span id="cooling-level">1</span></p>
+            <div class="upgrade-item">
+              <div class="upgrade-info">
+                <h3>COOLING SPEED</h3>
+                <p>LEVEL: <span id="cooling-level">1</span></p>
+              </div>
+              <button class="upgrade-button" id="upgrade-cooling">UPGRADE (400)</button>
             </div>
-            <button class="upgrade-button" id="upgrade-cooling">UPGRADE (400)</button>
-          </div>
-          <div class="upgrade-item">
-            <div class="upgrade-info">
-              <h3>MAGNET RANGE</h3>
-              <p>LEVEL: <span id="magnet-level">1</span></p>
+            <div class="upgrade-item">
+              <div class="upgrade-info">
+                <h3>MAGNET RANGE</h3>
+                <p>LEVEL: <span id="magnet-level">1</span></p>
+              </div>
+              <button class="upgrade-button" id="upgrade-magnet">UPGRADE (600)</button>
             </div>
-            <button class="upgrade-button" id="upgrade-magnet">UPGRADE (600)</button>
           </div>
         </div>
+
+        <div id="skins-container" class="tab-content hidden">
+          <div id="skin-list" class="upgrade-list">
+            <!-- Skins will be injected here -->
+          </div>
+        </div>
+
         <button id="garage-back-button">BACK</button>
       </div>
 

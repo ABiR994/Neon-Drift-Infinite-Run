@@ -147,9 +147,33 @@ body {
 
 #garage-credits {
   font-size: 1.2em;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #ffff00;
 }
+
+#garage-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.tab-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid #ffaa00;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 0.6em;
+}
+
+.tab-button.active {
+  background: #ffaa00;
+  color: #000;
+}
+
+.tab-content.hidden { display: none; }
 
 .upgrade-list {
   display: flex;

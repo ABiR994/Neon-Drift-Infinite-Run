@@ -608,4 +608,20 @@ export class Car {
             }
         });
     }
+
+    public applySkin(bodyColor: number, accentColor: number): void {
+        this.mesh.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                const mat = child.material;
+                // Identify body parts by original color 0x00d4ff
+                if (mat.color.getHex() === 0x00d4ff) {
+                    mat.color.setHex(bodyColor);
+                }
+                // Identify accent parts by original color 0x8844ff
+                if (mat.color.getHex() === 0x8844ff) {
+                    mat.color.setHex(accentColor);
+                }
+            }
+        });
+    }
 }

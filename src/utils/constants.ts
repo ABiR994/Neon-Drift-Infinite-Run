@@ -165,6 +165,22 @@ export const UPGRADES = {
     ]
 };
 
+// Skin types
+export interface Skin {
+    name: string;
+    bodyColor: number;
+    accentColor: number;
+    cost: number;
+    scoreRequired: number;
+}
+
+export const SKINS: Skin[] = [
+    { name: 'ORIGINAL', bodyColor: 0x00d4ff, accentColor: 0x8844ff, cost: 0, scoreRequired: 0 },
+    { name: 'INFERNO', bodyColor: 0xff4400, accentColor: 0xffaa00, cost: 1000, scoreRequired: 0 },
+    { name: 'VENOM', bodyColor: 0x00ff44, accentColor: 0x008822, cost: 2000, scoreRequired: 5000 },
+    { name: 'VOID', bodyColor: 0x111111, accentColor: 0x440088, cost: 5000, scoreRequired: 10000 },
+];
+
 // UI animation constants
 export const HUD_MAX_BLUR = 5; // Max blur in pixels at max speed
 export const HUD_MAX_MOTION_OFFSET = 10; // Max Y-offset for HUD motion at max speed
