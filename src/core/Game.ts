@@ -1,5 +1,4 @@
 // src/core/Game.ts
-import * as THREE from 'three';
 import { SceneManager } from './SceneManager';
 import { Input } from './Input';
 import { Road } from '../entities/Road';
@@ -10,7 +9,6 @@ import { ScoreSystem } from '../systems/ScoreSystem';
 import { HUD } from '../ui/HUD';
 import { GameOverScreen } from '../ui/GameOverScreen';
 import { FloatingTextManager } from '../ui/FloatingTextManager';
-import { ParticleSystem } from '../systems/ParticleSystem';
 import { PowerUpSpawner } from '../systems/PowerUpSpawner';
 import {
     GAME_SPEED_INITIAL,
@@ -21,7 +19,6 @@ import {
     COLLISION_SHAKE_INTENSITY,
     COLLISION_FLASH_DURATION,
     COLLISION_FREEZE_DURATION,
-    COLLISION_PARTICLE_COUNT,
     POWERUP_DURATION_BOOST,
     POWERUP_DURATION_MULTIPLIER,
     POWERUP_DURATION_MAGNET,
@@ -48,7 +45,6 @@ export class Game {
     private hud: HUD;
     private gameOverScreen: GameOverScreen;
     private floatingTextManager: FloatingTextManager;
-    private particleSystem: ParticleSystem;
     private powerUpSpawner: PowerUpSpawner;
 
     private lastFrameTime: DOMHighResTimeStamp = 0;
@@ -81,7 +77,6 @@ export class Game {
         this.hud = new HUD();
         this.gameOverScreen = new GameOverScreen(this.restartGame.bind(this));
         this.floatingTextManager = new FloatingTextManager();
-        this.particleSystem = new ParticleSystem(this.sceneManager.getScene());
         this.powerUpSpawner = new PowerUpSpawner(this.sceneManager.getScene());
 
         // Get UI elements for visual effects
@@ -191,13 +186,12 @@ export class Game {
             this.car.moveRight();
         }
 
-        this.car.update(deltaTime, currentTime / 1000, actualSpeed, this.particleSystem);
+        this.car.update(deltaTime, currentTime / 1000, actualSpeed);
         this.car.setShieldVisible(this.isShieldActive);
         
         this.road.update(deltaTime, actualSpeed, currentTime / 1000);
         this.obstacleSpawner.update(deltaTime, actualSpeed, currentTime);
         this.powerUpSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
-        
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.checkPowerUpCollisions();
         
@@ -225,7 +219,6 @@ export class Game {
         this.updateSpeedLines();
 
         this.floatingTextManager.update(currentTime);
-        this.particleSystem.update(deltaTime);
 
         this.input.clearJustPressedKeys();
     }
@@ -312,23 +305,9 @@ export class Game {
         this.gameState = 'gameOver';
         const finalGameScore = this.scoreSystem.getScore(); // Capture score immediately
 
+
         this.sceneManager.triggerDramaticShake(COLLISION_SHAKE_INTENSITY);
         this.sceneManager.triggerCollisionFlash(COLLISION_FLASH_DURATION);
-        this.sceneManager.triggerGlitch(COLLISION_FREEZE_DURATION * 2);
-
-        // Spawn collision particles
-        const carPos = this.car.mesh.position.clone();
-        for (let i = 0; i < COLLISION_PARTICLE_COUNT; i++) {
-            const velocity = new THREE.Vector3(
-                (Math.random() - 0.5) * 15,
-                (Math.random() - 0.5) * 15,
-                (Math.random() - 0.5) * 15
-            );
-            const color = new THREE.Color(0xff0044); // Reddish-pink for collision
-            if (Math.random() > 0.5) color.setHex(0xffaa00); // Orange sparks
-            
-            this.particleSystem.spawn(carPos, velocity, color, 1.5, 0.8);
-        }
 
         setTimeout(() => {
             if (this.animationFrameId !== null) {
@@ -383,7 +362,6 @@ export class Game {
         this.hud.dispose();
         this.gameOverScreen.dispose();
         this.floatingTextManager.dispose();
-        this.particleSystem.dispose(this.sceneManager.getScene());
         this.sceneManager.dispose();
     }
 }

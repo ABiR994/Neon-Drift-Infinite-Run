@@ -102,11 +102,6 @@ export const UI_SELECTORS = {
     GAME_OVER_NEW_HIGH_SCORE_MESSAGE: '#new-high-score-message', // New: Selector for new high score message
 };
 
-// Particle constants
-export const PARTICLE_COUNT_MAX = 1000;
-export const ENGINE_PARTICLE_SPAWN_RATE = 20; // Particles per second
-export const COLLISION_PARTICLE_COUNT = 30;
-
 // Power-up constants
 export const POWERUP_SPAWN_CHANCE = 0.2; // 20% chance to spawn a power-up instead of nothing when checking
 export const POWERUP_SPAWN_INTERVAL = 5; // Check for spawn every 5 seconds
