@@ -27,9 +27,6 @@ export class Car {
     // Wheel references for spinning animation
     private wheels: THREE.Mesh[] = [];
     private shieldMesh: THREE.Mesh | null = null;
-    private verticalVelocity: number = 0;
-    private isJumping: boolean = false;
-    private readonly GRAVITY: number = -50;
 
     constructor(scene: THREE.Scene) {
         this.mesh = this.createCarMesh();
@@ -460,13 +457,6 @@ export class Car {
         }
     }
 
-    public jump(force: number = 20): void {
-        if (!this.isJumping) {
-            this.isJumping = true;
-            this.verticalVelocity = force;
-        }
-    }
-
     /**
      * Spins the wheels based on current speed.
      * @param speed The current game speed.
@@ -554,26 +544,9 @@ export class Car {
         this.currentTiltAngle = lerp(this.currentTiltAngle, targetTilt, clamp(CAR_TILT_SPEED * deltaTime, 0, 1));
         this.mesh.rotation.z = this.currentTiltAngle;
 
-        // Jump physics
-        if (this.isJumping) {
-            this.verticalVelocity += this.GRAVITY * deltaTime;
-            this.mesh.position.y += this.verticalVelocity * deltaTime;
-            
-            // Ground check
-            if (this.mesh.position.y <= CAR_HEIGHT / 2) {
-                this.mesh.position.y = CAR_HEIGHT / 2;
-                this.isJumping = false;
-                this.verticalVelocity = 0;
-            }
-            
-            // Apply pitch while jumping
-            this.mesh.rotation.x = -this.verticalVelocity * 0.01;
-        } else {
-            // Car Bounce: Apply a subtle vertical bounce only when on ground
-            const bounceOffset = Math.sin(time * CAR_BOUNCE_FREQUENCY) * CAR_BOUNCE_AMPLITUDE;
-            this.mesh.position.y = CAR_HEIGHT / 2 + bounceOffset;
-            this.mesh.rotation.x = 0;
-        }
+        // Car Bounce: Apply a subtle vertical bounce
+        const bounceOffset = Math.sin(time * CAR_BOUNCE_FREQUENCY) * CAR_BOUNCE_AMPLITUDE;
+        this.mesh.position.y = CAR_HEIGHT / 2 + bounceOffset;
 
         // Spin the wheels based on speed
         this.spinWheels(speed, deltaTime);

@@ -2,8 +2,6 @@
 import * as THREE from 'three';
 import { Obstacle } from '../entities/Obstacle';
 import { EnemyCar } from '../entities/EnemyCar';
-import { SpecialObstacle } from '../entities/SpecialObstacle';
-import type { SpecialObstacleType } from '../entities/SpecialObstacle';
 import { ObstaclePool } from './ObstaclePool';
 import {
     ROAD_LENGTH,
@@ -20,8 +18,7 @@ import { getRandomInt } from '../utils/helpers';
 export class ObstacleSpawner {
     private obstacles: Obstacle[] = [];
     private enemyCars: EnemyCar[] = [];
-    private specialObstacles: SpecialObstacle[] = [];
-    private allCollidables: (Obstacle | EnemyCar | SpecialObstacle)[] = [];
+    private allCollidables: (Obstacle | EnemyCar)[] = [];
     private pool: ObstaclePool;
     private scene: THREE.Scene;
     private timeSinceLastSpawn: number = 0;
@@ -29,7 +26,7 @@ export class ObstacleSpawner {
     private totalGameTime: number = 0;
     private lastSpawnLanes: number[] = [];
     private lastSpawnZ: number = 0;
-    private readonly SAFE_Z_DISTANCE: number = 45;
+    private readonly SAFE_Z_DISTANCE: number = 45; // Minimum Z distance to ensure a continuous path
 
     constructor(scene: THREE.Scene) {
         this.scene = scene;
@@ -57,6 +54,7 @@ export class ObstacleSpawner {
             const obstacle = this.obstacles[i];
             obstacle.update(deltaTime, gameSpeed);
             obstacle.updateVisuals(gameSpeed, currentTime / 1000);
+
             if (obstacle.isOutOfView()) {
                 this.pool.release(obstacle);
                 this.obstacles.splice(i, 1);
@@ -73,17 +71,6 @@ export class ObstacleSpawner {
                 this.enemyCars.splice(i, 1);
             } else {
                 this.allCollidables.push(enemy);
-            }
-        }
-
-        for (let i = this.specialObstacles.length - 1; i >= 0; i--) {
-            const special = this.specialObstacles[i];
-            special.update(deltaTime, gameSpeed);
-            if (special.isOutOfView()) {
-                special.dispose(this.scene);
-                this.specialObstacles.splice(i, 1);
-            } else {
-                this.allCollidables.push(special);
             }
         }
     }
@@ -103,7 +90,6 @@ export class ObstacleSpawner {
 
         const speedFactor = (gameSpeed - 15) / (GAME_SPEED_MAX - 15);
         const enemySpawnChance = speedFactor * 0.4;
-        const specialSpawnChance = 0.25;
         const spawnedLanes: number[] = [];
 
         if (Math.random() < enemySpawnChance) {
@@ -111,14 +97,6 @@ export class ObstacleSpawner {
             const lane = availableLanes[laneIndex];
             const enemy = new EnemyCar(this.scene, lane, spawnZ, gameSpeed);
             this.enemyCars.push(enemy);
-            spawnedLanes.push(lane);
-        } else if (Math.random() < specialSpawnChance) {
-            const laneIndex = getRandomInt(0, availableLanes.length - 1);
-            const lane = availableLanes[laneIndex];
-            const types: SpecialObstacleType[] = ['RAMP', 'LASER', 'OIL'];
-            const type = types[getRandomInt(0, types.length - 1)];
-            const special = new SpecialObstacle(this.scene, type, lane, spawnZ);
-            this.specialObstacles.push(special);
             spawnedLanes.push(lane);
         } else {
             const patternType = Math.random() < OBSTACLE_PATTERN_CHANCE_DOUBLE ? 'DOUBLE' : 'SINGLE';
@@ -144,7 +122,7 @@ export class ObstacleSpawner {
         this.lastSpawnZ = spawnZ;
     }
 
-    public getObstacles(): (Obstacle | EnemyCar | SpecialObstacle)[] {
+    public getObstacles(): (Obstacle | EnemyCar)[] {
         return this.allCollidables;
     }
 
@@ -153,8 +131,6 @@ export class ObstacleSpawner {
         this.obstacles = [];
         for (const enemy of this.enemyCars) enemy.dispose(this.scene);
         this.enemyCars = [];
-        for (const special of this.specialObstacles) special.dispose(this.scene);
-        this.specialObstacles = [];
         this.allCollidables = [];
         this.timeSinceLastSpawn = 0;
         this.currentSpawnInterval = OBSTACLE_SPAWN_INTERVAL_INITIAL;

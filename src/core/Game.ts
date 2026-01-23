@@ -275,7 +275,6 @@ export class Game {
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.checkPowerUpCollisions();
         this.checkCreditCollisions();
-        this.checkSpecialObstacleCollisions();
         
         // Invincible during Boost Power-up ONLY (Manual boost doesn't grant invincibility)
         if (!boostPowerUpActive) {
@@ -389,31 +388,6 @@ export class Game {
                 this.floatingTextManager.spawnText(`+${CREDIT_VALUE}`, x, y);
                 this.creditSpawner.removeCredit(c);
             }
-        }
-    }
-
-    private checkSpecialObstacleCollisions(): void {
-        const obstacles = this.obstacleSpawner.getObstacles();
-        for (const obs of obstacles) {
-            if ('type' in obs && (obs as any).type === 'RAMP' || (obs as any).type === 'LASER' || (obs as any).type === 'OIL') {
-                if (this.car.collider.intersectsBox(obs.collider)) {
-                    this.handleSpecialObstacleCollision(obs as any);
-                }
-            }
-        }
-    }
-
-    private handleSpecialObstacleCollision(obs: any): void {
-        if (obs.type === 'RAMP') {
-            this.car.jump(25);
-            this.floatingTextManager.spawnText("AIR TIME!", window.innerWidth / 2, window.innerHeight / 2);
-        } else if (obs.type === 'OIL') {
-            // Apply temporary slide effect or slowdown?
-            // For now, let's just trigger a small camera shake and UI warning
-            this.sceneManager.triggerSmallShake(0.1);
-            this.floatingTextManager.spawnText("SLIPPERY!", window.innerWidth / 2, window.innerHeight / 2);
-        } else if (obs.type === 'LASER') {
-            this.handleCollision(obs);
         }
     }
 
