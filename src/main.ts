@@ -79,6 +79,13 @@ if (!gameContainer) {
     window.addEventListener('click', handleStartGame);
     window.addEventListener('touchstart', handleStartGame);
 
+    // Listen for "go home" to re-attach listeners
+    window.addEventListener('neon-drift-home', () => {
+        window.addEventListener('keydown', handleStartGame);
+        window.addEventListener('click', handleStartGame);
+        window.addEventListener('touchstart', handleStartGame);
+    });
+
     // Render the scene once so the background is visible
     sceneManager.render();
 

@@ -506,6 +506,9 @@ export class Game {
         if (startHighScore && storedHighScore) {
             startHighScore.textContent = `BEST: ${storedHighScore}`;
         }
+
+        // Re-attach start listeners (globally stored in main.ts or passed via callback)
+        window.dispatchEvent(new CustomEvent('neon-drift-home'));
     }
 
     public getCurrentSpeed(): number {
