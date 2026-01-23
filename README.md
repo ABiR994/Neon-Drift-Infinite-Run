@@ -94,26 +94,41 @@ Designed to deliver thrilling gameplay, responsive controls, and cinematic visua
 src/
 │
 ├── core/
-│   ├── Game.ts              # Main game logic and state
-│   ├── SceneManager.ts      # Three.js rendering and camera effects
-│   └── Input.ts             # Unified Keyboard/Touch input
+│   ├── Game.ts              # Main game logic and state management
+│   ├── Input.ts             # Unified Keyboard/Touch input handling
+│   └── SceneManager.ts      # Three.js scene setup, lighting, and camera effects
 │
 ├── entities/
-│   ├── Car.ts               # Player vehicle with skin support
+│   ├── Car.ts               # Player vehicle with skins and physics
+│   ├── Credit.ts            # Collectible currency entity
 │   ├── EnemyCar.ts          # AI-controlled moving obstacles
-│   ├── HunterBoss.ts        # Boss encounter mechanics
-│   ├── PowerUp.ts           # Collectible items
-│   └── Credit.ts            # Economy currency
+│   ├── HunterBoss.ts        # Mid-run boss encounter mechanics
+│   ├── Obstacle.ts          # Static energy barrier obstacles
+│   ├── PowerUp.ts           # Collectible gameplay items
+│   └── Road.ts              # Procedural road segment generation
 │
 ├── systems/
-│   ├── ObstacleSpawner.ts   # Smart spawning logic (no triple blocks!)
-│   ├── LeaderboardSystem.ts # Local high-score tracking
-│   └── EnvironmentSystem.ts # Procedural cityscape and buildings
+│   ├── CollisionSystem.ts   # AABB collision and near-miss detection
+│   ├── CreditSpawner.ts     # Currency generation logic
+│   ├── EnvironmentSystem.ts # Procedural buildings, billboards, and drones
+│   ├── LeaderboardSystem.ts # Local high-score management
+│   ├── ObstaclePool.ts      # Object pooling for performance optimization
+│   ├── ObstacleSpawner.ts   # Strategic obstacle placement logic
+│   ├── PowerUpSpawner.ts    # Item generation and lifecycle management
+│   └── ScoreSystem.ts       # Distance-based scoring and multipliers
 │
 ├── ui/
-│   ├── Garage.ts            # Upgrade and Skin shop
-│   ├── HUD.ts               # Animated in-game overlay
-│   └── GameOverScreen.ts    # Scoring and navigation
+│   ├── FloatingText.ts      # Individual floating text elements
+│   ├── FloatingTextManager.ts # Feedback text system (e.g., "+10", "BOOST")
+│   ├── GameOverScreen.ts    # Scoring summary and navigation
+│   ├── Garage.ts            # Upgrade and skin customization shop
+│   └── HUD.ts               # Dynamic in-game dashboard
+│
+├── utils/
+│   ├── constants.ts         # Global game configuration and balance
+│   └── helpers.ts           # Math and layout utility functions
+│
+└── main.ts                  # Entry point and PWA service worker registration
 ```
 
 ---
