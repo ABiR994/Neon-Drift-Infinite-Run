@@ -7,6 +7,7 @@ export class HUD {
     private hudElement: HTMLElement | null;
     private scoreElement: HTMLElement | null;
     private speedElement: HTMLElement | null;
+    private creditsElement: HTMLElement | null;
     private statusContainer: HTMLElement | null;
     private heatBar: HTMLElement | null;
     private displayedSpeed: { value: number } = { value: 0 };
@@ -16,6 +17,7 @@ export class HUD {
         this.hudElement = document.querySelector('#hud');
         this.scoreElement = document.querySelector(UI_SELECTORS.HUD_SCORE_VALUE);
         this.speedElement = document.querySelector(UI_SELECTORS.HUD_SPEED_VALUE);
+        this.creditsElement = document.querySelector('#credits-value');
         this.statusContainer = document.querySelector('#status-container');
         this.heatBar = document.querySelector('#heat-bar');
 
@@ -36,6 +38,12 @@ export class HUD {
         // Direct update for score, no tweening
         if (this.scoreElement) {
             this.scoreElement.textContent = Math.floor(score).toString();
+        }
+    }
+
+    public updateCredits(credits: number): void {
+        if (this.creditsElement) {
+            this.creditsElement.textContent = Math.floor(credits).toString();
         }
     }
 

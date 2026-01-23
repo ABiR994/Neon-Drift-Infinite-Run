@@ -116,6 +116,11 @@ export const HEAT_DECREASE_RATE = 20; // Percent per second when not boosting
 export const HEAT_OVERHEAT_COOLDOWN = 3; // Seconds to cool down after overheating
 export const MANUAL_BOOST_SPEED_MULT = 1.3;
 
+// Economy constants
+export const CREDIT_SPAWN_CHANCE = 0.4;
+export const CREDIT_SPAWN_INTERVAL = 1.5;
+export const CREDIT_VALUE = 10;
+
 // UI animation constants
 export const HUD_MAX_BLUR = 5; // Max blur in pixels at max speed
 export const HUD_MAX_MOTION_OFFSET = 10; // Max Y-offset for HUD motion at max speed

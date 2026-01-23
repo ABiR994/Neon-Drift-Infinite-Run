@@ -1,4 +1,5 @@
 // src/core/Game.ts
+import * as THREE from 'three';
 import { SceneManager } from './SceneManager';
 import { Input } from './Input';
 import { Road } from '../entities/Road';
@@ -10,6 +11,7 @@ import { HUD } from '../ui/HUD';
 import { GameOverScreen } from '../ui/GameOverScreen';
 import { FloatingTextManager } from '../ui/FloatingTextManager';
 import { PowerUpSpawner } from '../systems/PowerUpSpawner';
+import { CreditSpawner } from '../systems/CreditSpawner';
 import {
     GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
@@ -26,7 +28,8 @@ import {
     HEAT_INCREASE_RATE,
     HEAT_DECREASE_RATE,
     HEAT_OVERHEAT_COOLDOWN,
-    MANUAL_BOOST_SPEED_MULT
+    MANUAL_BOOST_SPEED_MULT,
+    CREDIT_VALUE
 } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 
@@ -46,11 +49,16 @@ export class Game {
     private gameOverScreen: GameOverScreen;
     private floatingTextManager: FloatingTextManager;
     private powerUpSpawner: PowerUpSpawner;
+    private creditSpawner: CreditSpawner;
 
     private lastFrameTime: DOMHighResTimeStamp = 0;
     private animationFrameId: number | null = null;
     private currentSpeed: number = GAME_SPEED_INITIAL;
     private gameState: GameState = 'playing';
+
+    // Economy state
+    private totalCredits: number = 0;
+    private sessionCredits: number = 0;
 
     // Power-up state
     private isShieldActive: boolean = false;
@@ -78,6 +86,11 @@ export class Game {
         this.gameOverScreen = new GameOverScreen(this.restartGame.bind(this));
         this.floatingTextManager = new FloatingTextManager();
         this.powerUpSpawner = new PowerUpSpawner(this.sceneManager.getScene());
+        this.creditSpawner = new CreditSpawner(this.sceneManager.getScene());
+
+        // Load total credits from storage
+        const storedCredits = localStorage.getItem('neon_drift_credits');
+        this.totalCredits = storedCredits ? parseInt(storedCredits) : 0;
 
         // Get UI elements for visual effects
         this.uiContainer = document.getElementById('ui-container');
@@ -101,6 +114,7 @@ export class Game {
         this.currentSpeed = GAME_SPEED_INITIAL;
         this.lastFrameTime = performance.now();
 
+        this.sessionCredits = 0;
         this.isShieldActive = false;
         this.boostTimer = 0;
         this.multiplierTimer = 0;
@@ -114,6 +128,7 @@ export class Game {
         this.car.reset();
         this.obstacleSpawner.reset();
         this.powerUpSpawner.reset();
+        this.creditSpawner.reset();
         this.scoreSystem.reset();
         this.hud.reset();
         this.hud.updateScore(this.scoreSystem.getScore());
@@ -192,8 +207,11 @@ export class Game {
         this.road.update(deltaTime, actualSpeed, currentTime / 1000);
         this.obstacleSpawner.update(deltaTime, actualSpeed, currentTime);
         this.powerUpSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
+        this.creditSpawner.update(deltaTime, actualSpeed, currentTime / 1000);
+
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.checkPowerUpCollisions();
+        this.checkCreditCollisions();
         
         // Invincible during Boost Power-up ONLY (Manual boost doesn't grant invincibility)
         if (!boostPowerUpActive) {
@@ -206,6 +224,7 @@ export class Game {
         this.sceneManager.updateEnvironment(actualSpeed, currentTime / 1000, deltaTime);
 
         this.hud.updateScore(this.scoreSystem.getScore());
+        this.hud.updateCredits(this.totalCredits + this.sessionCredits);
         this.hud.updateStatus({
             shield: this.isShieldActive,
             boost: boostPowerUpActive,
@@ -240,6 +259,31 @@ export class Game {
             if (this.car.collider.intersectsBox(p.collider)) {
                 this.handlePowerUpCollection(p);
                 this.powerUpSpawner.removePowerUp(p);
+            }
+        }
+    }
+
+    private checkCreditCollisions(): void {
+        const credits = this.creditSpawner.getCredits();
+        for (let i = credits.length - 1; i >= 0; i--) {
+            const c = credits[i];
+            
+            // Magnet effect: pull credits toward car
+            if (this.magnetTimer > 0) {
+                const distZ = c.mesh.position.z - this.car.mesh.position.z;
+                if (distZ < 25 && distZ > 0) {
+                    const dir = this.car.mesh.position.clone().sub(c.mesh.position).normalize();
+                    c.mesh.position.add(dir.multiplyScalar(30 * (1 / 60)));
+                }
+            }
+
+            if (this.car.collider.intersectsBox(c.collider)) {
+                this.sessionCredits += CREDIT_VALUE;
+                const screenPos = new THREE.Vector3().setFromMatrixPosition(c.mesh.matrixWorld).project(this.sceneManager.getCamera());
+                const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight;
+                this.floatingTextManager.spawnText(`+${CREDIT_VALUE}`, x, y);
+                this.creditSpawner.removeCredit(c);
             }
         }
     }
@@ -305,6 +349,9 @@ export class Game {
         this.gameState = 'gameOver';
         const finalGameScore = this.scoreSystem.getScore(); // Capture score immediately
 
+        // Persist credits
+        this.totalCredits += this.sessionCredits;
+        localStorage.setItem('neon_drift_credits', this.totalCredits.toString());
 
         this.sceneManager.triggerDramaticShake(COLLISION_SHAKE_INTENSITY);
         this.sceneManager.triggerCollisionFlash(COLLISION_FLASH_DURATION);
@@ -362,6 +409,7 @@ export class Game {
         this.hud.dispose();
         this.gameOverScreen.dispose();
         this.floatingTextManager.dispose();
+        this.creditSpawner.dispose();
         this.sceneManager.dispose();
     }
 }
