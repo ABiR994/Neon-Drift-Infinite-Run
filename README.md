@@ -5,7 +5,7 @@
 **A fast-paced, visually immersive infinite runner game built with Three.js and TypeScript,  
 set in a neon-drenched cyberpunk cityscape.**
 
-Designed to deliver thrilling gameplay, responsive controls, and cinematic visual feedback—all running smoothly in your browser.
+Designed to deliver thrilling gameplay, responsive controls, and cinematic visual feedback—all running smoothly in your browser or as a mobile app.
 
 <br>
 
@@ -23,73 +23,35 @@ Designed to deliver thrilling gameplay, responsive controls, and cinematic visua
 
 ## 🌆 Overview
 
-**Neon Drift - Infinite Run** is an endless 3D runner where players dodge obstacles on a procedurally generated highway while racing through a glowing cyberpunk metropolis. Built with performance and player experience in mind, the game combines smooth lane-shifting mechanics, escalating speed, and rich visual storytelling to create a compelling, replayable challenge.
-
-Every element—from camera motion to neon glows—is tuned to amplify the sensation of speed and urgency, making each run feel intense, fluid, and deeply satisfying.
+**Neon Drift - Infinite Run** is an endless 3D runner where players dodge obstacles on a procedurally generated highway while racing through a glowing cyberpunk metropolis. Now featuring a full progression system, power-ups, and a persistent economy, it's more than just a runner—it's a high-speed cyberpunk adventure.
 
 ---
 
-## ⚡ Core Features
+## ⚡ Key Features
 
-<table>
-<tr>
-<td width="50%" valign="top">
+### 🛠️ Progression & Economy
+- **Garage System**: Spend collected **Neon Credits** on permanent car upgrades (Power-up Duration, Cooling Speed, Magnet Range).
+- **Custom Skins**: Unlock unique vehicle styles like **INFERNO**, **VENOM**, and **VOID** based on credits and high-score milestones.
+- **Persistent Data**: Your credits, upgrades, and high scores are saved locally using `localStorage`.
 
-### 🎮 Gameplay
+### 🎮 Advanced Gameplay
+- **Power-Up System**: Shield, Speed Boost (Invincibility), X2 Multiplier, and Magnet collectibles.
+- **Manual Boost & Heat**: Hold `W` or `Up Arrow` for a manual speed burst, but manage your **Heat Meter** to avoid overheating!
+- **Hunter Boss**: Survive the high-stakes encounter with the pursuit vehicle that targets you with lasers every 10,000 points.
+- **Procedural Obstacles**: Traditional barriers plus aggressive **Enemy Cars** that change lanes to block your path.
 
-- **Dynamic Lane Shifting**  
-  Instantly switch between three lanes using intuitive keyboard controls
+### 🎨 Visual & Sensory "Juice"
+- **Dynamic Themes**: The environment shifts through Cyan, Magenta, Gold, and Emerald color palettes every 2,000 points.
+- **Cinematic Camera**: Features dynamic zoom, banking tilts, and subtle shake for an intense sensation of speed.
+- **Particle Systems**: High-performance neon exhaust and collision sparks.
+- **Slow-Mo Feedback**: Brief time-dilation on "Near Misses" to emphasize close calls.
 
-- **Procedural World Generation**  
-  Endless road segments and obstacle patterns ensure no two runs are alike
+---
 
-- **Responsive Input System**  
-  Tight, lag-free controls for precise maneuvering at high speeds
-
-- **Real-Time Scoring**  
-  Track your progress with a dynamic HUD that updates instantly
-
-- **High Score Tracking**  
-  Personal bests saved locally and celebrated with visual flair
-
-- **Robust Game States**  
-  Seamless transitions between start screen, gameplay, game over, and restart
-
-</td>
-<td width="50%" valign="top">
-
-### 🎨 Visual & Sensory Design
-
-- **Bloom Post-Processing**  
-  UnrealBloomPass creates authentic neon glow on all emissive materials
-
-- **Starfield Background**  
-  500 colorful particles create depth and atmosphere
-
-- **CRT Scanline Overlay**  
-  Subtle horizontal lines add retro cyberpunk authenticity
-
-- **Speed Lines**  
-  Radial overlay intensifies as velocity increases
-
-- **Atmospheric Fog**  
-  Layered, speed-reactive fog enhances immersion and spatial awareness
-
-- **Emissive Materials**  
-  All key elements pulse with synchronized neon hues
-
-</td>
-</tr>
-</table>
-
-### 💥 Feedback & Polish
-
-| Feature | Description |
-|:--------|:------------|
-| **Near-Miss Effects** | UI shake + micro camera shake for tension |
-| **Collision Impact** | Freeze-frame, bright flash, strong shake, and clear "GAME OVER" state |
-| **Object Pooling** | Optimized obstacle spawning reduces garbage collection for smooth 60 FPS |
-| **Tactile Car Physics** | Smooth lateral movement with tilt, suspension bounce, and speed-reactive FOV |
+## 📱 Mobile & PWA Support
+- **Fully Installable**: As a **Progressive Web App (PWA)**, you can install Neon Drift directly to your mobile home screen.
+- **Optimized Controls**: Intuitive **Swipe to Switch** and **Tap/Hold to Boost** controls designed for one-handed mobile play.
+- **Responsive View**: Automatically adjusts Field of View (FOV) and UI layout for both portrait and landscape modes.
 
 ---
 
@@ -97,76 +59,14 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 
 <div align="center">
 
-| Key | Action |
-|:---:|:-------|
-| `←` / `A` | Move car left |
-| `→` / `D` | Move car right |
-| `Space` / `Enter` | Start game (from title) |
-| `R` | Restart after game over |
+| Device | Action | Control |
+|:---:|:-------|:-------|
+| 💻 **PC** | Move Left/Right | `←` / `A` or `→` / `D` |
+| 💻 **PC** | Manual Boost | `W` or `↑` (Hold) |
+| 📱 **Mobile** | Move Left/Right | Swipe Left / Right |
+| 📱 **Mobile** | Manual Boost | Tap & Hold Screen |
 
 </div>
-
-> **Objective:** Survive as long as possible by dodging obstacles. The game speeds up over time—stay sharp, stay focused, and chase your highest score!
-
----
-
-## 🖥️ Visual & Gameplay Enhancements
-
-<table>
-<tr>
-<td width="33%" valign="top">
-
-### 🚗 Vehicle Design
-
-- **Futuristic Sports Car**  
-  Low-profile chassis with sleek, beveled panels
-
-- **Spinning Wheels**  
-  4 detailed wheels with chrome rims and rubber tires
-
-- **Neon Accents**  
-  Cyan body with purple fenders and glowing trim strips
-
-- **Carbon Fiber Details**  
-  Spoiler, side skirts, front splitter, rear diffuser
-
-- **Working Lights**  
-  Bright headlights, pink tail lights, dual exhaust glow, and underglow
-
-</td>
-<td width="33%" valign="top">
-
-### 🚧 Obstacle Design
-
-- **Energy Barriers**  
-  Hexagonal pillars with glowing cores
-
-- **Warning Lights**  
-  Yellow corner beacons and danger stripes
-
-- **Pulsing Effects**  
-  Emissive parts accelerate their pulse with speed
-
-- **High Contrast**  
-  Hot magenta/orange obstacles pop against cyan car
-
-</td>
-<td width="33%" valign="top">
-
-### 🎯 UI/UX Design
-
-- **Dynamic HUD**  
-  Score and speed animate with gameplay intensity
-
-- **Polished Game Over Screen**
-  - Smooth fade-in transition
-  - Final score + high score status
-  - "NEW HIGH SCORE!" highlight
-  - Intuitive restart with hover/click feedback
-
-</td>
-</tr>
-</table>
 
 ---
 
@@ -181,8 +81,8 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 | **Animation** | TWEEN.js |
 | **Language** | TypeScript |
 | **Build Tool** | Vite |
-| **Styling** | CSS (with scanlines & overlays) |
-| **Persistence** | `localStorage` (high scores) |
+| **Persistence** | `localStorage` |
+| **PWA** | Service Workers + Web Manifest |
 
 </div>
 
@@ -194,91 +94,64 @@ Every element—from camera motion to neon glows—is tuned to amplify the sensa
 src/
 │
 ├── core/
-│   ├── Game.ts              # Main game loop and state management
-│   └── SceneManager.ts      # Three.js scene, camera, lighting, post-processing
+│   ├── Game.ts              # Main game logic and state
+│   ├── SceneManager.ts      # Three.js rendering and camera effects
+│   └── Input.ts             # Unified Keyboard/Touch input
 │
 ├── entities/
-│   ├── Car.ts               # Player vehicle with wheels and animations
-│   ├── Obstacle.ts          # Energy barrier obstacles
-│   └── Road.ts              # Procedural road generation
+│   ├── Car.ts               # Player vehicle with skin support
+│   ├── EnemyCar.ts          # AI-controlled moving obstacles
+│   ├── HunterBoss.ts        # Boss encounter mechanics
+│   ├── PowerUp.ts           # Collectible items
+│   └── Credit.ts            # Economy currency
 │
 ├── systems/
-│   ├── CollisionSystem.ts   # Collision detection
-│   ├── InputManager.ts      # Keyboard input handling
-│   ├── ObstaclePool.ts      # Object pooling for obstacles
-│   ├── ObstacleSpawner.ts   # Obstacle spawn logic
-│   └── ScoreSystem.ts       # Scoring and high score tracking
+│   ├── ObstacleSpawner.ts   # Smart spawning logic (no triple blocks!)
+│   ├── LeaderboardSystem.ts # Local high-score tracking
+│   └── EnvironmentSystem.ts # Procedural cityscape and buildings
 │
 ├── ui/
-│   ├── GameOverScreen.ts    # Game over UI
-│   └── HUD.ts               # In-game score/speed display
-│
-├── utils/
-│   ├── constants.ts         # Game configuration values
-│   └── helpers.ts           # Utility functions
-│
-├── styles/
-│   └── main.css             # UI styles, scanlines, speed lines
-│
-└── main.ts                  # Entry point with start screen logic
+│   ├── Garage.ts            # Upgrade and Skin shop
+│   ├── HUD.ts               # Animated in-game overlay
+│   └── GameOverScreen.ts    # Scoring and navigation
 ```
 
 ---
 
 ## ▶️ Setup and Installation
 
-### Prerequisites
-
-- Node.js (LTS version recommended)
-- npm or Yarn
-
 ### Installation
-
 **1. Clone the repository:**
-
 ```bash
 git clone https://github.com/ABiR994/Neon-Drift-Infinite-Run.git
 cd Neon-Drift-Infinite-Run
 ```
-
 **2. Install dependencies:**
-
 ```bash
 npm install
 ```
 
-### Running the Development Server
-
+### Running Locally
 ```bash
 npm run dev
 ```
 
-Launches the development server at `http://localhost:5173/Neon-Drift-Infinite-Run/`.  
-Features hot-reloading for immediate feedback during development.
-
 ### Building for Production
-
 ```bash
 npm run build
 ```
 
-Compiles the application into optimized static assets in the `dist/` directory, ready for deployment.
-
 ---
 
 ## 🚀 Performance Optimizations
-
-| Optimization | Description |
-|:-------------|:------------|
-| **Object Pooling** | Obstacles are reused instead of created/destroyed to reduce GC pressure |
-| **Static Vector3 Allocations** | Camera look-at target uses static vector to avoid per-frame allocations |
-| **Efficient Collider Updates** | Manual bounding box calculation for Group meshes |
-| **Shared Utility Functions** | Lane position and speed normalization helpers reduce code duplication |
+- **Object Pooling**: Reuses mesh objects for obstacles and credits to prevent GC lag.
+- **Array Reuse**: Minimized memory allocations in the main update loop.
+- **Optimized HUD**: Uses `translate3d` and smart dirty-checking to prevent DOM thrashing.
+- **Responsive FOV**: Dynamic math-based camera adjustment for all aspect ratios.
 
 ---
 
 ## 📄 License
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
@@ -289,5 +162,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **[ABiR994](https://github.com/ABiR994)** with OpenCode
 
 </div>
-
----
