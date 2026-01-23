@@ -2,6 +2,7 @@
 import './styles/main.css';
 import { SceneManager } from './core/SceneManager';
 import { Game } from './core/Game';
+import { LeaderboardSystem } from './systems/LeaderboardSystem';
 
 // Get the game container element
 const gameContainer = document.getElementById('game-container');
@@ -24,16 +25,37 @@ if (!gameContainer) {
         startHighScore.textContent = `BEST: ${storedHighScore}`;
     }
 
-    // Display Top 5 Runs
+    // Leaderboard Tabs
+    const tabLocal = document.getElementById('tab-local');
+    const tabGlobal = document.getElementById('tab-global');
     const topScoresList = document.getElementById('top-scores-list');
-    const storedScores = JSON.parse(localStorage.getItem('neon_drift_top_scores') || '[]');
-    if (topScoresList && storedScores.length > 0) {
-        storedScores.forEach((score: number, index: number) => {
-            const li = document.createElement('li');
-            li.textContent = `#${index + 1}: ${score}`;
-            topScoresList.appendChild(li);
-        });
-    }
+
+    const renderLeaderboard = async (isGlobal: boolean) => {
+        if (!topScoresList) return;
+        topScoresList.innerHTML = isGlobal ? 'LOADING...' : '';
+        
+        tabLocal?.classList.toggle('active', !isGlobal);
+        tabGlobal?.classList.toggle('active', isGlobal);
+
+        const scores = isGlobal ? await LeaderboardSystem.getGlobalScores() : LeaderboardSystem.getLocalScores();
+        
+        topScoresList.innerHTML = '';
+        if (scores.length > 0) {
+            scores.forEach((entry, index) => {
+                const li = document.createElement('li');
+                li.textContent = `#${index + 1} ${entry.name}: ${entry.score}`;
+                topScoresList.appendChild(li);
+            });
+        } else {
+            topScoresList.innerHTML = '<li>NO SCORES YET</li>';
+        }
+    };
+
+    tabLocal?.addEventListener('click', (e) => { e.stopPropagation(); renderLeaderboard(false); });
+    tabGlobal?.addEventListener('click', (e) => { e.stopPropagation(); renderLeaderboard(true); });
+
+    // Initial render
+    renderLeaderboard(false);
 
     // Handle start screen - wait for any key press
     const handleStartGame = (event: Event) => {

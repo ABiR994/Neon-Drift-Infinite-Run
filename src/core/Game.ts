@@ -15,6 +15,7 @@ import { PowerUpSpawner } from '../systems/PowerUpSpawner';
 import { CreditSpawner } from '../systems/CreditSpawner';
 import { EnvironmentSystem } from '../systems/EnvironmentSystem';
 import { HunterBoss } from '../entities/HunterBoss';
+import { LeaderboardSystem } from '../systems/LeaderboardSystem';
 import {
     GAME_SPEED_INITIAL,
     GAME_SPEED_MAX,
@@ -487,12 +488,7 @@ export class Game {
         this.sessionCredits = 0;
 
         // Update High Scores
-        const scores = JSON.parse(localStorage.getItem('neon_drift_top_scores') || '[]');
-        scores.push(finalGameScore);
-        scores.sort((a: number, b: number) => b - a);
-        const topScores = scores.slice(0, 5);
-        localStorage.setItem('neon_drift_top_scores', JSON.stringify(topScores));
-        localStorage.setItem('neon_drift_high_score', topScores[0].toString());
+        LeaderboardSystem.saveLocalScore(finalGameScore);
 
         this.sceneManager.triggerDramaticShake(COLLISION_SHAKE_INTENSITY);
         this.sceneManager.triggerCollisionFlash(COLLISION_FLASH_DURATION);
