@@ -114,6 +114,31 @@ body {
   animation: icon-entry 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+#leaderboard-preview {
+  margin: 10px 0;
+  padding: 10px;
+  background: rgba(0, 255, 255, 0.05);
+  border-radius: 5px;
+  font-size: 0.6em;
+}
+
+#leaderboard-preview h3 {
+  margin: 0 0 5px;
+  color: #ff00ff;
+  font-size: 0.8em;
+}
+
+#top-scores-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#top-scores-list li {
+  margin: 3px 0;
+  color: #00ffff;
+}
+
 #garage-button {
   background: #ffaa00;
   color: #0a0a1a;

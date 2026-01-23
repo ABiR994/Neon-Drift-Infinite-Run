@@ -380,11 +380,19 @@ export class Game {
 
     private endGame(): void {
         this.gameState = 'gameOver';
-        const finalGameScore = this.scoreSystem.getScore(); // Capture score immediately
+        const finalGameScore = Math.floor(this.scoreSystem.getScore()); // Capture score immediately
 
         // Persist credits
         this.totalCredits += this.sessionCredits;
         localStorage.setItem('neon_drift_credits', this.totalCredits.toString());
+
+        // Update High Scores
+        const scores = JSON.parse(localStorage.getItem('neon_drift_top_scores') || '[]');
+        scores.push(finalGameScore);
+        scores.sort((a: number, b: number) => b - a);
+        const topScores = scores.slice(0, 5);
+        localStorage.setItem('neon_drift_top_scores', JSON.stringify(topScores));
+        localStorage.setItem('neon_drift_high_score', topScores[0].toString());
 
         this.sceneManager.triggerDramaticShake(COLLISION_SHAKE_INTENSITY);
         this.sceneManager.triggerCollisionFlash(COLLISION_FLASH_DURATION);
