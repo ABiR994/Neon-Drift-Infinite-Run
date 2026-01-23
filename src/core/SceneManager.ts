@@ -25,6 +25,7 @@ import {
     CAMERA_SHAKE_SPEED_THRESHOLD,
     CAMERA_SHAKE_FREQUENCY
 } from '../utils/constants';
+import type { Theme } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 
 import * as TWEEN from '@tweenjs/tween.js';
@@ -240,6 +241,27 @@ export class SceneManager {
 
     public getRenderer(): THREE.WebGLRenderer {
         return this.renderer;
+    }
+
+    public applyTheme(theme: Theme): void {
+        const duration = 2000; // 2 second transition
+
+        // Transition Fog and Background
+        new TWEEN.Tween(this.scene.background as THREE.Color)
+            .to({ r: ((theme.fogColor >> 16) & 255) / 255, g: ((theme.fogColor >> 8) & 255) / 255, b: (theme.fogColor & 255) / 255 }, duration)
+            .start();
+        
+        new TWEEN.Tween((this.scene.fog as THREE.FogExp2).color)
+            .to({ r: ((theme.fogColor >> 16) & 255) / 255, g: ((theme.fogColor >> 8) & 255) / 255, b: (theme.fogColor & 255) / 255 }, duration)
+            .start();
+
+        // Transition Ambient Light
+        const ambient = this.scene.children.find(c => c instanceof THREE.AmbientLight) as THREE.AmbientLight;
+        if (ambient) {
+            new TWEEN.Tween(ambient.color)
+                .to({ r: ((theme.ambientColor >> 16) & 255) / 255, g: ((theme.ambientColor >> 8) & 255) / 255, b: (theme.ambientColor & 255) / 255 }, duration)
+                .start();
+        }
     }
 
     /**

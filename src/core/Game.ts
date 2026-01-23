@@ -29,7 +29,9 @@ import {
     HEAT_DECREASE_RATE,
     HEAT_OVERHEAT_COOLDOWN,
     MANUAL_BOOST_SPEED_MULT,
-    CREDIT_VALUE
+    CREDIT_VALUE,
+    THEMES,
+    THEME_MILESTONE
 } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 
@@ -55,6 +57,7 @@ export class Game {
     private animationFrameId: number | null = null;
     private currentSpeed: number = GAME_SPEED_INITIAL;
     private gameState: GameState = 'playing';
+    private currentThemeIndex: number = 0;
 
     // Economy state
     private totalCredits: number = 0;
@@ -113,6 +116,7 @@ export class Game {
         this.gameState = 'playing';
         this.currentSpeed = GAME_SPEED_INITIAL;
         this.lastFrameTime = performance.now();
+        this.currentThemeIndex = 0;
 
         this.sessionCredits = 0;
         this.isShieldActive = false;
@@ -220,6 +224,17 @@ export class Game {
         
         const scoreMultiplier = this.multiplierTimer > 0 ? 2 : 1;
         this.scoreSystem.update(deltaTime, actualSpeed * scoreMultiplier);
+
+        // Check for theme milestone
+        const nextThemeIndex = Math.floor(this.scoreSystem.getScore() / THEME_MILESTONE) % THEMES.length;
+        if (nextThemeIndex !== this.currentThemeIndex) {
+            this.currentThemeIndex = nextThemeIndex;
+            const theme = THEMES[this.currentThemeIndex];
+            this.sceneManager.applyTheme(theme);
+            this.road.applyTheme(theme.roadLineColor);
+            this.car.applyTheme(theme.carEmissiveColor);
+            this.floatingTextManager.spawnText("THEME SHIFT", window.innerWidth / 2, window.innerHeight / 2);
+        }
 
         this.sceneManager.updateEnvironment(actualSpeed, currentTime / 1000, deltaTime);
 

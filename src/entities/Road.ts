@@ -1,5 +1,6 @@
 // src/entities/Road.ts
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js';
 import {
     ROAD_WIDTH,
     ROAD_LENGTH,
@@ -267,5 +268,26 @@ export class Road {
         this.roadMaterial.dispose();
         this.laneLineMaterial.dispose();
         this.edgeLineMaterial.dispose();
+    }
+
+    public applyTheme(lineColor: number): void {
+        const duration = 2000;
+        const targetColor = new THREE.Color(lineColor);
+
+        new TWEEN.Tween(this.laneLineMaterial.color)
+            .to({ r: targetColor.r, g: targetColor.g, b: targetColor.b }, duration)
+            .start();
+        
+        new TWEEN.Tween(this.laneLineMaterial.emissive)
+            .to({ r: targetColor.r, g: targetColor.g, b: targetColor.b }, duration)
+            .start();
+
+        new TWEEN.Tween(this.edgeLineMaterial.color)
+            .to({ r: targetColor.r, g: targetColor.g, b: targetColor.b }, duration)
+            .start();
+
+        new TWEEN.Tween(this.edgeLineMaterial.emissive)
+            .to({ r: targetColor.r, g: targetColor.g, b: targetColor.b }, duration)
+            .start();
     }
 }

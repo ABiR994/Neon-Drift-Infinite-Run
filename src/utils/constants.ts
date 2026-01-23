@@ -121,6 +121,23 @@ export const CREDIT_SPAWN_CHANCE = 0.4;
 export const CREDIT_SPAWN_INTERVAL = 1.5;
 export const CREDIT_VALUE = 10;
 
+// Theme types
+export interface Theme {
+    fogColor: number;
+    roadLineColor: number;
+    ambientColor: number;
+    carEmissiveColor: number;
+}
+
+export const THEMES: Theme[] = [
+    { fogColor: 0x0a0a1a, roadLineColor: 0x00ffff, ambientColor: 0x444444, carEmissiveColor: 0x00ffff }, // Cyan Night
+    { fogColor: 0x1a0a1a, roadLineColor: 0xff00ff, ambientColor: 0x442244, carEmissiveColor: 0xff00ff }, // Magenta Dusk
+    { fogColor: 0x1a150a, roadLineColor: 0xffaa00, ambientColor: 0x443322, carEmissiveColor: 0xffaa00 }, // Golden Sunset
+    { fogColor: 0x0a1a0a, roadLineColor: 0x00ff88, ambientColor: 0x224433, carEmissiveColor: 0x00ff88 }, // Emerald Matrix
+];
+
+export const THEME_MILESTONE = 2000; // Change theme every 2000 points
+
 // UI animation constants
 export const HUD_MAX_BLUR = 5; // Max blur in pixels at max speed
 export const HUD_MAX_MOTION_OFFSET = 10; // Max Y-offset for HUD motion at max speed

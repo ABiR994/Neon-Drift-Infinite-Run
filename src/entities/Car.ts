@@ -1,5 +1,6 @@
 // src/entities/Car.ts
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js';
 import {
     CAR_WIDTH,
     CAR_HEIGHT,
@@ -589,5 +590,22 @@ export class Car {
 
         disposeObject(this.mesh); // Dispose main car mesh
         this.mesh.children.forEach(child => disposeObject(child)); // Dispose headlights and fin
+    }
+
+    public applyTheme(emissiveColor: number): void {
+        const duration = 2000;
+        const targetColor = new THREE.Color(emissiveColor);
+
+        this.mesh.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                // Check if it's one of our neon materials
+                const mat = child.material;
+                if (mat.emissive && (mat.emissive.getHex() !== 0x000000)) {
+                    new TWEEN.Tween(mat.emissive)
+                        .to({ r: targetColor.r, g: targetColor.g, b: targetColor.b }, duration)
+                        .start();
+                }
+            }
+        });
     }
 }
