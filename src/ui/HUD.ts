@@ -120,6 +120,14 @@ export class HUD {
         }
     }
 
+    public hide(): void {
+        this.hudElement?.classList.add('hidden');
+    }
+
+    public show(): void {
+        this.hudElement?.classList.remove('hidden');
+    }
+
     public reset(): void {
         if (this.speedTween) {
             this.speedTween.stop();

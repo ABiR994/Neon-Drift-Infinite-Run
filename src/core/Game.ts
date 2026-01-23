@@ -161,6 +161,7 @@ export class Game {
         this.creditSpawner.reset();
         this.scoreSystem.reset();
         this.hud.reset();
+        this.hud.show(); // Show HUD when game starts
         this.hud.updateScore(this.scoreSystem.getScore());
         this.gameOverScreen.hide();
 
@@ -389,6 +390,8 @@ export class Game {
     private endGame(): void {
         this.gameState = 'gameOver';
         const finalGameScore = Math.floor(this.scoreSystem.getScore()); // Capture score immediately
+
+        this.hud.hide(); // Hide HUD when game ends to prevent overlapping
 
         // Persist credits
         this.totalCredits += this.sessionCredits;

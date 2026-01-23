@@ -35,12 +35,11 @@ export class Input {
         window.addEventListener('touchstart', (e: TouchEvent) => {
             this.touchStartX = e.touches[0].clientX;
             this.touchStartY = e.touches[0].clientY;
-            this.isBoostingOnTouch = e.touches.length > 1; // Boost with second finger
+            this.isBoostingOnTouch = true; // One finger press to accelerate
             this.hasSwipedThisTouch = false;
         }, { passive: false });
 
         window.addEventListener('touchend', (e: TouchEvent) => {
-            this.isBoostingOnTouch = e.touches.length > 0; // Keep boosting if at least one finger remains (if we started with 2)
             if (e.touches.length === 0) {
                 this.isBoostingOnTouch = false;
             }
@@ -48,8 +47,6 @@ export class Input {
         }, { passive: false });
 
         window.addEventListener('touchmove', (e: TouchEvent) => {
-            this.isBoostingOnTouch = e.touches.length > 1;
-
             if (this.hasSwipedThisTouch) return;
 
             const currentX = e.touches[0].clientX;
