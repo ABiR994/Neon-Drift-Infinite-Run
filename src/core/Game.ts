@@ -393,6 +393,9 @@ export class Game {
         // Persist credits
         this.totalCredits += this.sessionCredits;
         localStorage.setItem('neon_drift_credits', this.totalCredits.toString());
+        
+        // Reset session credits immediately to avoid double-counting in the final frame update
+        this.sessionCredits = 0;
 
         // Update High Scores
         const scores = JSON.parse(localStorage.getItem('neon_drift_top_scores') || '[]');

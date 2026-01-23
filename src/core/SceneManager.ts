@@ -231,11 +231,12 @@ export class SceneManager {
         
         // Adjust FOV for portrait mode to ensure road fits
         if (aspect < 1) {
-            // Horizontal FOV should remain roughly constant
+            // horizontal FOV = 2 * atan(tan(vFOV/2) * aspect)
+            // We want horizontal FOV to be at least what it is in landscape 16:9
             const initialFovRad = (CAMERA_FOV * Math.PI) / 180;
-            const hFovRad = 2 * Math.atan(Math.tan(initialFovRad / 2) * (16/9)); // Target a 16:9 equivalent horizontal view
-            const newFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
-            this.camera.fov = (newFovRad * 180) / Math.PI;
+            const targetHFovRad = 2 * Math.atan(Math.tan(initialFovRad / 2) * (1.77)); // 1.77 is ~16/9
+            const newVFovRad = 2 * Math.atan(Math.tan(targetHFovRad / 2) / aspect);
+            this.camera.fov = Math.min(120, (newVFovRad * 180) / Math.PI); // Cap FOV to avoid extreme distortion
         } else {
             this.camera.fov = CAMERA_FOV;
         }

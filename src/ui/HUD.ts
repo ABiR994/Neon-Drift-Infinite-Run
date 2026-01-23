@@ -110,8 +110,9 @@ export class HUD {
             const t = getNormalizedSpeed(speed);
 
             // Subtle motion (e.g., slight vertical shift)
-            const motionOffset = t * HUD_MAX_MOTION_OFFSET;
-            this.hudElement.style.transform = `translateY(${motionOffset}px)`;
+            // Use round to avoid sub-pixel blurring
+            const motionOffset = Math.round(t * HUD_MAX_MOTION_OFFSET);
+            this.hudElement.style.transform = `translate3d(0, ${motionOffset}px, 0)`;
 
             // Subtle glow (adjust box-shadow, already has one)
             const glowIntensity = 1 + t * 0.5; // Increase glow intensity slightly with speed
