@@ -25,19 +25,13 @@ if (!gameContainer) {
         startHighScore.textContent = `BEST: ${storedHighScore}`;
     }
 
-    // Leaderboard Tabs
-    const tabLocal = document.getElementById('tab-local');
-    const tabGlobal = document.getElementById('tab-global');
+    // Leaderboard
     const topScoresList = document.getElementById('top-scores-list');
 
-    const renderLeaderboard = async (isGlobal: boolean) => {
+    const renderLeaderboard = () => {
         if (!topScoresList) return;
-        topScoresList.innerHTML = isGlobal ? 'LOADING...' : '';
         
-        tabLocal?.classList.toggle('active', !isGlobal);
-        tabGlobal?.classList.toggle('active', isGlobal);
-
-        const scores = isGlobal ? await LeaderboardSystem.getGlobalScores() : LeaderboardSystem.getLocalScores();
+        const scores = LeaderboardSystem.getLocalScores();
         
         topScoresList.innerHTML = '';
         if (scores.length > 0) {
@@ -51,11 +45,8 @@ if (!gameContainer) {
         }
     };
 
-    tabLocal?.addEventListener('click', (e) => { e.stopPropagation(); renderLeaderboard(false); });
-    tabGlobal?.addEventListener('click', (e) => { e.stopPropagation(); renderLeaderboard(true); });
-
     // Initial render
-    renderLeaderboard(false);
+    renderLeaderboard();
 
     // Handle start screen - wait for any key press
     const handleStartGame = (event: Event) => {
