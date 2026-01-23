@@ -56,8 +56,10 @@ export class HUD {
             this.heatBar.style.width = `${heatPercent}%`;
             if (overheated) {
                 this.heatBar.classList.add('overheated');
+                this.hudElement?.classList.add('hud-shake');
             } else {
                 this.heatBar.classList.remove('overheated');
+                this.hudElement?.classList.remove('hud-shake');
             }
         }
     }
@@ -65,8 +67,11 @@ export class HUD {
     private addStatusIcon(type: string): void {
         if (!this.statusContainer) return;
         const icon = document.createElement('div');
-        icon.className = `status-icon ${type}`;
+        icon.className = `status-icon ${type} new`;
         this.statusContainer.appendChild(icon);
+        
+        // Remove 'new' class after animation
+        setTimeout(() => icon.classList.remove('new'), 500);
     }
 
     public update(speed: number): void {

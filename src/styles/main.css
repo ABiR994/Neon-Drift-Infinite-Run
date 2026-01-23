@@ -95,6 +95,25 @@ body {
   to { opacity: 1; transform: scale(1.1); }
 }
 
+@keyframes hud-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.hud-shake {
+  animation: hud-shake 0.1s infinite;
+}
+
+@keyframes icon-entry {
+  from { transform: scale(0) rotate(-180deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.status-icon.new {
+  animation: icon-entry 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 #game-over-screen {
   position: absolute;
   top: 50%;
@@ -246,9 +265,39 @@ body {
 }
 
 #start-screen .controls {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   font-size: 0.9em;
-  line-height: 2;
+  line-height: 1.5;
+}
+
+#tutorial-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+  text-align: left;
+  font-size: 0.7em;
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
+  padding-top: 20px;
+}
+
+.tutorial-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.tutorial-item .status-icon {
+  width: 20px;
+  height: 20px;
+  animation: none;
+}
+
+.boost-note {
+  color: #ffaa00;
+  margin-top: 10px;
+  font-size: 0.8em;
+  text-align: center;
 }
 
 #start-screen .controls span {
@@ -257,7 +306,7 @@ body {
 
 #start-screen .start-prompt {
   color: #00ff00;
-  font-size: 1.3em;
+  font-size: 1.1em;
   animation: blink 1s ease-in-out infinite;
 }
 
