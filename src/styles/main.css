@@ -50,6 +50,33 @@ body {
   margin-top: 10px;
 }
 
+#heat-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00ffff;
+  margin: 10px 0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+#heat-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(to right, #00ffff, #ff0000);
+  transition: width 0.1s;
+}
+
+#heat-bar.overheated {
+  background: #ff0000;
+  animation: overheat-blink 0.2s infinite;
+}
+
+@keyframes overheat-blink {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+
 .status-icon {
   width: 25px;
   height: 25px;

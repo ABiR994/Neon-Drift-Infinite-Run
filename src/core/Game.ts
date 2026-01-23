@@ -26,7 +26,11 @@ import {
     POWERUP_DURATION_BOOST,
     POWERUP_DURATION_MULTIPLIER,
     POWERUP_DURATION_MAGNET,
-    POWERUP_BOOST_SPEED_MULT
+    POWERUP_BOOST_SPEED_MULT,
+    HEAT_INCREASE_RATE,
+    HEAT_DECREASE_RATE,
+    HEAT_OVERHEAT_COOLDOWN,
+    MANUAL_BOOST_SPEED_MULT
 } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 
@@ -59,6 +63,11 @@ export class Game {
     private boostTimer: number = 0;
     private multiplierTimer: number = 0;
     private magnetTimer: number = 0;
+
+    // Heat state
+    private heat: number = 0; // 0 to 100
+    private isOverheated: boolean = false;
+    private overheatCooldownTimer: number = 0;
 
     // UI elements for visual effects
     private uiContainer: HTMLElement | null = null;
@@ -105,6 +114,10 @@ export class Game {
         this.multiplierTimer = 0;
         this.magnetTimer = 0;
 
+        this.heat = 0;
+        this.isOverheated = false;
+        this.overheatCooldownTimer = 0;
+
         this.road.reset();
         this.car.reset();
         this.obstacleSpawner.reset();
@@ -149,7 +162,27 @@ export class Game {
         if (this.multiplierTimer > 0) this.multiplierTimer -= deltaTime;
         if (this.magnetTimer > 0) this.magnetTimer -= deltaTime;
 
-        const speedMultiplier = this.boostTimer > 0 ? POWERUP_BOOST_SPEED_MULT : 1;
+        // Manual Boost & Heat logic
+        const isAttemptingBoost = this.input.isBoosting() && !this.isOverheated;
+        
+        if (isAttemptingBoost) {
+            this.heat = Math.min(100, this.heat + HEAT_INCREASE_RATE * deltaTime);
+            if (this.heat >= 100) {
+                this.isOverheated = true;
+                this.overheatCooldownTimer = HEAT_OVERHEAT_COOLDOWN;
+            }
+        } else {
+            if (this.isOverheated) {
+                this.overheatCooldownTimer -= deltaTime;
+                if (this.overheatCooldownTimer <= 0) {
+                    this.isOverheated = false;
+                }
+            }
+            this.heat = Math.max(0, this.heat - HEAT_DECREASE_RATE * deltaTime);
+        }
+
+        const boostPowerUpActive = this.boostTimer > 0;
+        const speedMultiplier = (boostPowerUpActive ? POWERUP_BOOST_SPEED_MULT : (isAttemptingBoost ? MANUAL_BOOST_SPEED_MULT : 1));
         
         this.currentSpeed = Math.min(
             GAME_SPEED_MAX,
@@ -174,7 +207,8 @@ export class Game {
         this.collisionSystem.setObstacles(this.obstacleSpawner.getObstacles());
         this.checkPowerUpCollisions();
         
-        if (this.boostTimer <= 0) {
+        // Invincible during Boost Power-up ONLY (Manual boost doesn't grant invincibility)
+        if (!boostPowerUpActive) {
             this.collisionSystem.update();
         }
         
@@ -187,10 +221,11 @@ export class Game {
         this.hud.updateScore(this.scoreSystem.getScore());
         this.hud.updateStatus({
             shield: this.isShieldActive,
-            boost: this.boostTimer > 0,
+            boost: boostPowerUpActive,
             multiplier: this.multiplierTimer > 0,
             magnet: this.magnetTimer > 0
         });
+        this.hud.updateHeat(this.heat, this.isOverheated);
         this.hud.update(actualSpeed);
 
         // Update speed lines visibility based on speed

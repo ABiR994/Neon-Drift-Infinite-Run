@@ -8,6 +8,7 @@ export class HUD {
     private scoreElement: HTMLElement | null;
     private speedElement: HTMLElement | null;
     private statusContainer: HTMLElement | null;
+    private heatBar: HTMLElement | null;
     private displayedSpeed: { value: number } = { value: 0 };
     private speedTween: TWEEN.Tween<typeof this.displayedSpeed> | null = null;
 
@@ -16,6 +17,7 @@ export class HUD {
         this.scoreElement = document.querySelector(UI_SELECTORS.HUD_SCORE_VALUE);
         this.speedElement = document.querySelector(UI_SELECTORS.HUD_SPEED_VALUE);
         this.statusContainer = document.querySelector('#status-container');
+        this.heatBar = document.querySelector('#heat-bar');
 
         if (!this.hudElement) {
             console.warn(`HUD: Main HUD element with selector "#hud" not found.`);
@@ -47,6 +49,17 @@ export class HUD {
         if (status.boost) this.addStatusIcon('boost');
         if (status.multiplier) this.addStatusIcon('multiplier');
         if (status.magnet) this.addStatusIcon('magnet');
+    }
+
+    public updateHeat(heatPercent: number, overheated: boolean): void {
+        if (this.heatBar) {
+            this.heatBar.style.width = `${heatPercent}%`;
+            if (overheated) {
+                this.heatBar.classList.add('overheated');
+            } else {
+                this.heatBar.classList.remove('overheated');
+            }
+        }
     }
 
     private addStatusIcon(type: string): void {
