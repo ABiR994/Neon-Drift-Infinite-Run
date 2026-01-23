@@ -94,9 +94,24 @@ if (!gameContainer) {
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(err => {
-                console.log('ServiceWorker registration failed: ', err);
-            });
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        if (installingWorker) {
+                            installingWorker.onstatechange = () => {
+                                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New content available, reload page
+                                    console.log('New content detected, reloading...');
+                                    window.location.reload();
+                                }
+                            };
+                        }
+                    };
+                })
+                .catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
         });
     }
 }
