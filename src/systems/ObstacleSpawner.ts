@@ -19,6 +19,9 @@ export class ObstacleSpawner {
     private timeSinceLastSpawn: number = 0;
     private currentSpawnInterval: number;
     private totalGameTime: number = 0;
+    private lastSpawnLanes: number[] = [];
+    private lastSpawnZ: number = 0;
+    private readonly SAFE_Z_DISTANCE: number = 25; // Minimum Z distance to consider obstacles as a "cluster"
 
     constructor(scene: THREE.Scene) {
         this.pool = new ObstaclePool(scene);
@@ -66,34 +69,50 @@ export class ObstacleSpawner {
      */
     private spawnObstacle(): void {
         const spawnZ = CAR_INITIAL_Z - ROAD_LENGTH - getRandomInt(ROAD_LENGTH / 4, ROAD_LENGTH / 2);
+        
+        // Determine which lanes are "fair" to spawn in
+        let availableLanes = Array.from({ length: LANE_COUNT }, (_, i) => i);
+        
+        // If this spawn is too close to the last one, don't block the lane that was left open
+        if (Math.abs(spawnZ - this.lastSpawnZ) < this.SAFE_Z_DISTANCE && this.lastSpawnLanes.length > 0) {
+            // Find lanes that were NOT blocked in the last spawn
+            const previouslyOpenLanes = availableLanes.filter(lane => !this.lastSpawnLanes.includes(lane));
+            
+            // If we have limited open lanes, make sure we don't block them all now
+            if (previouslyOpenLanes.length === 1) {
+                // The single open lane must stay open if we are too close
+                availableLanes = availableLanes.filter(lane => lane !== previouslyOpenLanes[0]);
+            }
+        }
 
         // Determine obstacle pattern
         const patternType = Math.random() < OBSTACLE_PATTERN_CHANCE_DOUBLE ? 'DOUBLE' : 'SINGLE';
+        const spawnedLanes: number[] = [];
 
-        if (patternType === 'SINGLE') {
-            const randomLane = getRandomInt(0, LANE_COUNT - 1);
-            const obstacle = this.pool.acquire(randomLane, spawnZ);
+        if (patternType === 'SINGLE' || availableLanes.length < 2) {
+            const laneIndex = getRandomInt(0, availableLanes.length - 1);
+            const lane = availableLanes[laneIndex];
+            const obstacle = this.pool.acquire(lane, spawnZ);
             this.obstacles.push(obstacle);
+            spawnedLanes.push(lane);
         } else if (patternType === 'DOUBLE') {
-            // Ensure there are at least 2 lanes for a double obstacle
-            if (LANE_COUNT >= 2) {
-                let lane1 = getRandomInt(0, LANE_COUNT - 1);
-                let lane2 = getRandomInt(0, LANE_COUNT - 1);
-
-                // Ensure two different lanes are selected
-                while (lane2 === lane1) {
-                    lane2 = getRandomInt(0, LANE_COUNT - 1);
-                }
-
-                this.obstacles.push(this.pool.acquire(lane1, spawnZ));
-                this.obstacles.push(this.pool.acquire(lane2, spawnZ));
-            } else {
-                // Fallback to single if not enough lanes for double
-                const randomLane = getRandomInt(0, LANE_COUNT - 1);
-                const obstacle = this.pool.acquire(randomLane, spawnZ);
-                this.obstacles.push(obstacle);
+            // Pick two different lanes from available ones
+            let idx1 = getRandomInt(0, availableLanes.length - 1);
+            let idx2 = getRandomInt(0, availableLanes.length - 1);
+            while (idx2 === idx1) {
+                idx2 = getRandomInt(0, availableLanes.length - 1);
             }
+            
+            const lane1 = availableLanes[idx1];
+            const lane2 = availableLanes[idx2];
+            
+            this.obstacles.push(this.pool.acquire(lane1, spawnZ));
+            this.obstacles.push(this.pool.acquire(lane2, spawnZ));
+            spawnedLanes.push(lane1, lane2);
         }
+
+        this.lastSpawnLanes = spawnedLanes;
+        this.lastSpawnZ = spawnZ;
     }
 
     /**
@@ -115,6 +134,8 @@ export class ObstacleSpawner {
         this.timeSinceLastSpawn = 0;
         this.currentSpawnInterval = OBSTACLE_SPAWN_INTERVAL_INITIAL;
         this.totalGameTime = 0;
+        this.lastSpawnLanes = [];
+        this.lastSpawnZ = 0;
     }
 
     /**
