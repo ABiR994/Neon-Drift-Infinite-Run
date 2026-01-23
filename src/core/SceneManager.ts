@@ -40,7 +40,7 @@ const BLOOM_RADIUS = 0.5;
 const BLOOM_THRESHOLD = 0.3;
 
 // Starfield configuration constants
-const STARFIELD_COUNT = 500;
+const STARFIELD_COUNT = window.innerWidth < 600 ? 200 : 500;
 const STARFIELD_SPREAD = 400;
 const STARFIELD_DEPTH = 600;
 
@@ -223,12 +223,27 @@ export class SceneManager {
      * Handles window resize events to maintain aspect ratio and fill the screen.
      */
     private onWindowResize(): void {
-        this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
-        this.camera.updateProjectionMatrix(); // Update camera's projection matrix after aspect change
-        this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-        // Update composer and bloom pass for new size
-        this.composer.setSize(this.container.clientWidth, this.container.clientHeight);
-        this.bloomPass.resolution.set(this.container.clientWidth, this.container.clientHeight);
+        const width = this.container.clientWidth;
+        const height = this.container.clientHeight;
+        const aspect = width / height;
+
+        this.camera.aspect = aspect;
+        
+        // Adjust FOV for portrait mode to ensure road fits
+        if (aspect < 1) {
+            // Horizontal FOV should remain roughly constant
+            const initialFovRad = (CAMERA_FOV * Math.PI) / 180;
+            const hFovRad = 2 * Math.atan(Math.tan(initialFovRad / 2) * (16/9)); // Target a 16:9 equivalent horizontal view
+            const newFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
+            this.camera.fov = (newFovRad * 180) / Math.PI;
+        } else {
+            this.camera.fov = CAMERA_FOV;
+        }
+
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(width, height);
+        this.composer.setSize(width, height);
+        this.bloomPass.resolution.set(width, height);
     }
 
     public getScene(): THREE.Scene {

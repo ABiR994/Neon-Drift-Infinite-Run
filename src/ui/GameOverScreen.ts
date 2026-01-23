@@ -6,8 +6,10 @@ export class GameOverScreen {
     private gameOverScreenElement: HTMLElement | null;
     private finalScoreElement: HTMLElement | null;
     private restartButton: HTMLButtonElement | null;
+    private homeButton: HTMLButtonElement | null;
     private newHighScoreMessage: HTMLElement | null;
     private onRestartCallback: () => void;
+    private onHomeCallback: () => void;
     private displayedFinalScore: { value: number } = { value: 0 };
     private scoreTween: TWEEN.Tween<any> | null = null;
     private currentHighScore: number = 0;
@@ -16,12 +18,14 @@ export class GameOverScreen {
     private handleMouseEnter: () => void;
     private handleMouseLeave: () => void;
 
-    constructor(onRestart: () => void) {
+    constructor(onRestart: () => void, onHome: () => void) {
         this.gameOverScreenElement = document.querySelector(UI_SELECTORS.GAME_OVER_SCREEN);
         this.finalScoreElement = document.querySelector(UI_SELECTORS.GAME_OVER_FINAL_SCORE_VALUE);
         this.restartButton = document.querySelector(UI_SELECTORS.RESTART_BUTTON) as HTMLButtonElement;
+        this.homeButton = document.getElementById('home-button') as HTMLButtonElement;
         this.newHighScoreMessage = document.querySelector(UI_SELECTORS.GAME_OVER_NEW_HIGH_SCORE_MESSAGE);
         this.onRestartCallback = onRestart;
+        this.onHomeCallback = onHome;
 
         // Create bound event handlers
         this.handleMouseEnter = () => this.restartButton?.classList.add('hover');
@@ -45,6 +49,11 @@ export class GameOverScreen {
             this.restartButton.addEventListener('mouseenter', this.handleMouseEnter);
             this.restartButton.addEventListener('mouseleave', this.handleMouseLeave);
         }
+
+        if (this.homeButton) {
+            this.homeButton.addEventListener('click', this.onHomeCallback);
+        }
+
         if (!this.newHighScoreMessage) {
             console.warn(`GameOverScreen: New high score message element with selector "${UI_SELECTORS.GAME_OVER_NEW_HIGH_SCORE_MESSAGE}" not found.`);
         }
@@ -97,6 +106,9 @@ export class GameOverScreen {
             this.restartButton.removeEventListener('click', this.onRestartCallback);
             this.restartButton.removeEventListener('mouseenter', this.handleMouseEnter);
             this.restartButton.removeEventListener('mouseleave', this.handleMouseLeave);
+        }
+        if (this.homeButton) {
+            this.homeButton.removeEventListener('click', this.onHomeCallback);
         }
         if (this.finalScoreElement) {
             this.finalScoreElement.textContent = '0';

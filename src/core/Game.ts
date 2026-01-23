@@ -95,7 +95,10 @@ export class Game {
         this.obstacleSpawner = new ObstacleSpawner(this.sceneManager.getScene());
         this.scoreSystem = new ScoreSystem();
         this.hud = new HUD();
-        this.gameOverScreen = new GameOverScreen(this.restartGame.bind(this));
+        this.gameOverScreen = new GameOverScreen(
+            this.restartGame.bind(this),
+            this.goHome.bind(this)
+        );
         this.garage = new Garage(this.applyUpgrades.bind(this));
         this.floatingTextManager = new FloatingTextManager();
 
@@ -135,6 +138,11 @@ export class Game {
         this.currentSpeed = GAME_SPEED_INITIAL;
         this.lastFrameTime = performance.now();
         this.currentThemeIndex = 0;
+
+        // Reload fresh values from storage
+        const storedCredits = localStorage.getItem('neon_drift_credits');
+        this.totalCredits = storedCredits ? parseInt(storedCredits) : 0;
+        this.applyUpgrades();
 
         this.sessionCredits = 0;
         this.isShieldActive = false;
@@ -425,6 +433,20 @@ export class Game {
     private restartGame(): void {
         this.init();
         this.start();
+    }
+
+    private goHome(): void {
+        this.gameOverScreen.hide();
+        this.hud.reset();
+        document.getElementById('hud')?.classList.add('hidden');
+        document.getElementById('start-screen')?.classList.remove('hidden');
+        
+        // Refresh high scores on home screen
+        const storedHighScore = localStorage.getItem('neon_drift_high_score');
+        const startHighScore = document.getElementById('start-high-score');
+        if (startHighScore && storedHighScore) {
+            startHighScore.textContent = `BEST: ${storedHighScore}`;
+        }
     }
 
     public getCurrentSpeed(): number {

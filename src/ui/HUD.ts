@@ -1,5 +1,5 @@
 // src/ui/HUD.ts
-import { UI_SELECTORS, HUD_MAX_BLUR, HUD_MAX_MOTION_OFFSET } from '../utils/constants';
+import { UI_SELECTORS, HUD_MAX_MOTION_OFFSET } from '../utils/constants';
 import { getNormalizedSpeed } from '../utils/helpers';
 import * as TWEEN from '@tweenjs/tween.js';
 
@@ -12,6 +12,8 @@ export class HUD {
     private heatBar: HTMLElement | null;
     private displayedSpeed: { value: number } = { value: 0 };
     private speedTween: TWEEN.Tween<typeof this.displayedSpeed> | null = null;
+
+    private lastStatus: string = '';
 
     constructor() {
         this.hudElement = document.querySelector('#hud');
@@ -48,9 +50,13 @@ export class HUD {
     }
 
     public updateStatus(status: { shield: boolean, boost: boolean, multiplier: boolean, magnet: boolean }): void {
+        const statusKey = JSON.stringify(status);
+        if (statusKey === this.lastStatus) return;
+        this.lastStatus = statusKey;
+
         if (!this.statusContainer) return;
 
-        // Clear and rebuild status icons (simple approach)
+        // Clear and rebuild status icons only when state changes
         this.statusContainer.innerHTML = '';
         
         if (status.shield) this.addStatusIcon('shield');
@@ -99,17 +105,13 @@ export class HUD {
                 .start();
         }
 
-        // Apply HUD motion and blur based on speed
+        // Apply HUD motion based on speed
         if (this.hudElement) {
             const t = getNormalizedSpeed(speed);
 
             // Subtle motion (e.g., slight vertical shift)
             const motionOffset = t * HUD_MAX_MOTION_OFFSET;
             this.hudElement.style.transform = `translateY(${motionOffset}px)`;
-
-            // Blur effect
-            const blurAmount = t * HUD_MAX_BLUR;
-            this.hudElement.style.filter = `blur(${blurAmount}px)`;
 
             // Subtle glow (adjust box-shadow, already has one)
             const glowIntensity = 1 + t * 0.5; // Increase glow intensity slightly with speed
@@ -131,7 +133,6 @@ export class HUD {
         }
         if (this.hudElement) {
             this.hudElement.style.transform = 'translateY(0px)';
-            this.hudElement.style.filter = 'blur(0px)';
             this.hudElement.style.boxShadow = '0 0 15px #00ffff'; // Reset to initial glow
         }
     }
