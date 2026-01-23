@@ -58,6 +58,7 @@ if (!gameContainer) {
         // Remove start listeners
         window.removeEventListener('keydown', handleStartGame);
         window.removeEventListener('click', handleStartGame);
+        window.removeEventListener('touchstart', handleStartGame);
     };
 
     // Add event listeners for starting the game

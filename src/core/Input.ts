@@ -8,7 +8,8 @@ export class Input {
     private touchStartX: number = 0;
     private touchStartY: number = 0;
     private swipeThreshold: number = 30;
-    private isTouching: boolean = false;
+    private isBoostingOnTouch: boolean = false;
+    private hasSwipedThisTouch: boolean = false;
 
     private constructor() {
         this.keysPressed = new Set();
@@ -34,36 +35,50 @@ export class Input {
         window.addEventListener('touchstart', (e: TouchEvent) => {
             this.touchStartX = e.touches[0].clientX;
             this.touchStartY = e.touches[0].clientY;
-            this.isTouching = true;
+            this.isBoostingOnTouch = e.touches.length > 1; // Boost with second finger
+            this.hasSwipedThisTouch = false;
         }, { passive: false });
 
         window.addEventListener('touchend', (e: TouchEvent) => {
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            this.handleSwipe(this.touchStartX, this.touchStartY, touchEndX, touchEndY);
-            this.isTouching = false;
+            this.isBoostingOnTouch = e.touches.length > 0; // Keep boosting if at least one finger remains (if we started with 2)
+            if (e.touches.length === 0) {
+                this.isBoostingOnTouch = false;
+            }
+            this.hasSwipedThisTouch = false;
         }, { passive: false });
 
         window.addEventListener('touchmove', (e: TouchEvent) => {
-            // Prevent scrolling
-            e.preventDefault();
-        }, { passive: false });
-    }
+            this.isBoostingOnTouch = e.touches.length > 1;
 
-    private handleSwipe(startX: number, startY: number, endX: number, endY: number): void {
-        const diffX = endX - startX;
-        const diffY = endY - startY;
+            if (this.hasSwipedThisTouch) return;
 
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-            // Horizontal swipe
-            if (Math.abs(diffX) > this.swipeThreshold) {
-                if (diffX > 0) {
-                    this.keysJustPressed.add('ArrowRight');
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+            
+            const diffX = currentX - this.touchStartX;
+            const diffY = currentY - this.touchStartY;
+
+            if (Math.abs(diffX) > this.swipeThreshold || Math.abs(diffY) > this.swipeThreshold) {
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    // Horizontal swipe
+                    if (diffX > 0) {
+                        this.keysJustPressed.add('ArrowRight');
+                    } else {
+                        this.keysJustPressed.add('ArrowLeft');
+                    }
+                    this.hasSwipedThisTouch = true;
                 } else {
-                    this.keysJustPressed.add('ArrowLeft');
+                    // Vertical swipe - maybe for boost?
+                    if (diffY < 0) { // Swipe up
+                        // We'll handle vertical swipe logic if needed, but for now let's just mark it
+                        this.hasSwipedThisTouch = true;
+                    }
                 }
             }
-        }
+
+            // Prevent scrolling
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
@@ -136,7 +151,7 @@ export class Input {
      * Checks if either 'W' or 'ArrowUp' is pressed for a slight boost.
      */
     public isBoosting(): boolean {
-        return this.isKeyPressed('KeyW') || this.isKeyPressed('ArrowUp') || this.isTouching;
+        return this.isKeyPressed('KeyW') || this.isKeyPressed('ArrowUp') || this.isBoostingOnTouch;
     }
 
     /**
