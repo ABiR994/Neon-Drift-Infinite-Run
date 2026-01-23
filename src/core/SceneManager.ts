@@ -56,6 +56,8 @@ export class SceneManager {
     private originalDirectionalLightIntensity: number | null = null; // Store original directional light intensity
     private shakeTimer: number = 0; // Timer for camera shake duration
     private currentShakeIntensity: number = 0; // Current intensity for temporary shakes
+    private cameraTargetRotationZ: number = 0;
+    private timeScale: number = 1.0;
 
     // Post-processing
     private composer: EffectComposer;
@@ -266,6 +268,10 @@ export class SceneManager {
         return this.renderer;
     }
 
+    public getTimeScale(): number {
+        return this.timeScale;
+    }
+
     public applyTheme(theme: Theme): void {
         const duration = 2000; // 2 second transition
 
@@ -397,6 +403,22 @@ export class SceneManager {
     }
 
     /**
+     * Sets the time scale for slow-mo effects.
+     * @param scale The time scale (1.0 for normal, less than 1.0 for slow-mo).
+     */
+    public setTimeScale(scale: number): void {
+        this.timeScale = scale;
+    }
+
+    /**
+     * Sets the target camera bank/tilt angle.
+     * @param angle The angle in radians.
+     */
+    public setCameraDriftTilt(angle: number): void {
+        this.cameraTargetRotationZ = angle;
+    }
+
+    /**
      * Updates environment effects based on game speed and time, such as fog density, camera FOV, camera tilt, and camera shake.
      * @param speed The current game speed.
      * @param time The total elapsed time, for pulsation and shake effects.
@@ -423,6 +445,9 @@ export class SceneManager {
         // Lerp from initial (0) tilt to CAMERA_TILT_MAX_ANGLE
         this.camera.rotation.x = this.initialCameraRotationX + CAMERA_TILT_MAX_ANGLE * t;
 
+        // 3b. Update Camera Drift Tilt (banking)
+        this.camera.rotation.z = THREE.MathUtils.lerp(this.camera.rotation.z, this.cameraTargetRotationZ, 5 * deltaTime);
+
         // 4. Implement Camera Shake (subtle at high speeds)
         if (speed > CAMERA_SHAKE_SPEED_THRESHOLD) {
             const shakeFactor = (speed - CAMERA_SHAKE_SPEED_THRESHOLD) / (GAME_SPEED_MAX - CAMERA_SHAKE_SPEED_THRESHOLD);
@@ -434,10 +459,14 @@ export class SceneManager {
 
             this.camera.position.x = this.initialCameraPosition.x + shakeX;
             this.camera.position.y = this.initialCameraPosition.y + shakeY;
+            
+            // Dynamic Zoom: pull camera back as we speed up
+            this.camera.position.z = this.initialCameraPosition.z + (t * 5);
         } else {
             // Reset camera position if speed is below threshold
             this.camera.position.x = this.initialCameraPosition.x;
             this.camera.position.y = this.initialCameraPosition.y;
+            this.camera.position.z = this.initialCameraPosition.z;
         }
 
         // Apply temporary shake (e.g., from near-miss)

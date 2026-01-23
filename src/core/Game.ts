@@ -62,6 +62,7 @@ export class Game {
     private currentSpeed: number = GAME_SPEED_INITIAL;
     private gameState: GameState = 'playing';
     private currentThemeIndex: number = 0;
+    private slowMoTimer: number = 0;
 
     // Economy state
     private totalCredits: number = 0;
@@ -176,8 +177,17 @@ export class Game {
     }
 
     private animate(currentTime: DOMHighResTimeStamp): void {
-        const deltaTime = (currentTime - this.lastFrameTime) / 1000;
+        let deltaTime = (currentTime - this.lastFrameTime) / 1000;
         this.lastFrameTime = currentTime;
+
+        // Apply slow-mo effect
+        if (this.slowMoTimer > 0) {
+            this.slowMoTimer -= deltaTime;
+            deltaTime *= 0.3; // 70% slow down
+            if (this.slowMoTimer <= 0) {
+                this.slowMoTimer = 0;
+            }
+        }
 
         TWEEN.update(currentTime); // Call TWEEN.update here, always
 
@@ -231,6 +241,9 @@ export class Game {
         } else if (this.input.isMoveRightJustPressed()) {
             this.car.moveRight();
         }
+
+        // Apply Camera Drift Tilt (banking)
+        this.sceneManager.setCameraDriftTilt(this.car.getDriftFactor() * 0.05);
 
         this.car.update(deltaTime, currentTime / 1000, actualSpeed);
         this.car.setShieldVisible(this.isShieldActive);
@@ -463,6 +476,9 @@ export class Game {
         this.sceneManager.triggerSmallShake(NEAR_MISS_SHAKE_INTENSITY);
         this.sceneManager.triggerLightFlash(NEAR_MISS_FLASH_DURATION);
         
+        // Trigger impact slow-mo
+        this.slowMoTimer = 0.2;
+
         // Trigger UI shake effect
         if (this.uiContainer) {
             this.uiContainer.classList.add('shake');

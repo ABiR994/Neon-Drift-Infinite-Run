@@ -624,4 +624,9 @@ export class Car {
             }
         });
     }
+
+    public getDriftFactor(): number {
+        const targetX = this.getLanePositionX(this.targetLane);
+        return targetX - this.mesh.position.x;
+    }
 }
