@@ -48,13 +48,19 @@ if (!gameContainer) {
     // Initial render
     renderLeaderboard();
 
+    let isGameStarted = false;
+
     // Handle start screen - wait for any key press
     const handleStartGame = (event: Event) => {
+        if (isGameStarted) return;
+        
         // Ignore if it's a click on buttons
         if (event.type === 'click' || event.type === 'touchstart') {
             const target = event.target as HTMLElement;
             if (target.closest('button')) return;
         }
+
+        isGameStarted = true;
 
         // Hide start screen and show HUD
         if (startScreen) {
@@ -81,6 +87,7 @@ if (!gameContainer) {
 
     // Listen for "go home" to re-attach listeners
     window.addEventListener('neon-drift-home', () => {
+        isGameStarted = false;
         window.addEventListener('keydown', handleStartGame);
         window.addEventListener('click', handleStartGame);
         window.addEventListener('touchstart', handleStartGame);
