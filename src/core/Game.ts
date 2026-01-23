@@ -282,7 +282,7 @@ export class Game {
         }
     }
 
-    private handleCollision(obstacle: any): void {
+    private handleCollision(_obstacle: any): void {
         if (this.isShieldActive) {
             this.isShieldActive = false;
             this.car.setShieldVisible(false);
