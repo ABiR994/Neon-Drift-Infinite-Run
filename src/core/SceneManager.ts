@@ -435,6 +435,7 @@ export class SceneManager {
         // 3. Update Camera Tilt (slight forward tilt at higher speeds)
         // Lerp from initial (0) tilt to CAMERA_TILT_MAX_ANGLE
         this.camera.rotation.x = this.initialCameraRotationX + CAMERA_TILT_MAX_ANGLE * t;
+        this.camera.rotation.z = 0; // Force Z-rotation to 0 to prevent banking/side-tilts
 
         // 4. Implement Camera Shake (subtle at high speeds)
         if (speed > CAMERA_SHAKE_SPEED_THRESHOLD) {
