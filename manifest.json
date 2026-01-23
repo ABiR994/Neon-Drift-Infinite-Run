@@ -1,0 +1,18 @@
+{
+  "name": "Neon Drift: Infinite Run",
+  "short_name": "Neon Drift",
+  "description": "A cyberpunk infinite runner with high-speed drifting and neon aesthetics.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#030008",
+  "theme_color": "#030008",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
